@@ -11,8 +11,10 @@ using namespace std;
 struct union_find {
     vector<int> sizes, ids;
     vector<list<int>> sets;
+    int count;
 
-    union_find(int n): sizes(n, 1), ids(n), sets(n) {
+    union_find(int n)
+    : sizes(n, 1), ids(n), sets(n), count(n) {
         for (int i = 0; i < n; i++) {
             ids[i] = i;
             sets[i] = list<int>(1, i);
@@ -29,14 +31,7 @@ struct union_find {
         for (int e : sets[s2]) ids[e] = s1;
         sets[s1].splice(sets[s1].end(), sets[s2]);
         sizes[s1] += sizes[s2];
-    }
-
-    int count() {
-        int ret = 0;
-        for (list<int> set : sets)
-            if (set.size() > 0)
-                ret++;
-        return ret;
+        count--;
     }
 };
 
@@ -45,5 +40,5 @@ int main() {
     test.merge(1, 5);
     test.merge(1, 3);
     test.merge(3, 3);
-    cout << (test.count() == 8 ? "pass" : "fail") << endl;
+    cout << (test.count == 8 ? "pass" : "fail") << endl;
 }

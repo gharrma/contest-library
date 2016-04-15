@@ -1,6 +1,6 @@
 /*
  * Segment tree data structure with arbitrary value type and operation.
- * Represented as perfect binary tree, zero-initialized.
+ * Represented as perfect binary tree, identity-initialized.
  * Root is 1. Node i parent at i/2. Node i children at 2*i and 2*i + 1.
  */
 #include <iostream>
@@ -12,16 +12,16 @@ template<typename T> struct seg_tree {
     size_t size;
     vector<T> nodes;
     function<T(T,T)> f;
-    T zero;
+    T identity;
 
     seg_tree<T>(
         size_t n_values,
         function<T(T,T)> f = [](T l, T r) {return l + r;},
-        T zero = T()
-    ): zero(zero), f(f) {
+        T identity = T()
+    ): identity(identity), f(f) {
         size = 1;
         while (size < n_values) size <<= 1;
-        nodes.resize(2*size, zero);
+        nodes.resize(2*size, identity);
     }
 
     void update(size_t i, T v) {
@@ -35,7 +35,7 @@ template<typename T> struct seg_tree {
 
     T query(size_t i, size_t j) {
         i += size; j += size;
-        T left = zero, right = zero;
+        T left = identity, right = identity;
         while (i <= j) {
             if (i % 2 == 1) left  = f(left, nodes[i++]);
             if (j % 2 == 0) right = f(nodes[j--], right);

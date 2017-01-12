@@ -12,16 +12,17 @@ template<typename T> struct seg_tree {
     size_t size;
     vector<T> nodes;
     function<T(T,T)> f;
-    T identity;
+    T id;
 
-    seg_tree<T>(
-        size_t n_values,
-        function<T(T,T)> f = [](T l, T r) {return l + r;},
-        T identity = T()
-    ): identity(identity), f(f) {
+    seg_tree<T>(size_t n,
+                function<T(T,T)> f = [] (T l, T r) {return l + r;},
+                T id = T())
+        : id(id), f(f)
+    {
         size = 1;
-        while (size < n_values) size <<= 1;
-        nodes.resize(2*size, identity);
+        while (size < n)
+            size <<= 1;
+        nodes.resize(2*size, id);
     }
 
     void update(size_t i, T v) {
@@ -35,18 +36,18 @@ template<typename T> struct seg_tree {
 
     T query(size_t i, size_t j) {
         i += size; j += size;
-        T left = identity, right = identity;
+        T l = id, r = id;
         while (i <= j) {
-            if (i % 2 == 1) left  = f(left, nodes[i++]);
-            if (j % 2 == 0) right = f(nodes[j--], right);
+            if (i % 2 == 1) l = f(l, nodes[i++]);
+            if (j % 2 == 0) r = f(nodes[j--], r);
             i /= 2; j /= 2;
         }
-        return f(left, right);
+        return f(l, r);
     }
 };
 
 int main() {
-    seg_tree<int> test(5, [](int l, int r) {return max(l,r);});
+    seg_tree<int> test(5, [] (int l, int r) {return max(l,r);});
     test.update(0, 3);
     test.update(1, 2);
     test.update(2, 4);

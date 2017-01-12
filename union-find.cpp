@@ -8,6 +8,8 @@
 #include <list>
 using namespace std;
 
+// TODO: test asymptotic performance.
+
 struct union_find {
     vector<int> sizes, ids;
     vector<list<int>> sets;

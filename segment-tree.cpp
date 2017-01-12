@@ -1,16 +1,17 @@
 /*
- * Segment tree data structure with arbitrary value type and operation.
- * Represented as perfect binary tree, identity-initialized.
- * Root is 1. Node i parent at i/2. Node i children at 2*i and 2*i + 1.
+ * Segment tree with arbitrary value type and operation.
+ * Represented as a perfect binary tree, identity-initialized.
+ * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i + 1.
  */
 #include <iostream>
 #include <algorithm>
 #include <vector>
 using namespace std;
 
-template<typename T> struct seg_tree {
-    size_t size;
-    vector<T> nodes;
+template <typename T>
+struct seg_tree {
+    size_t s;
+    vector<T> v;
     function<T(T,T)> f;
     T id;
 
@@ -19,27 +20,27 @@ template<typename T> struct seg_tree {
                 T id = T())
         : id(id), f(f)
     {
-        size = 1;
-        while (size < n)
-            size <<= 1;
-        nodes.resize(2*size, id);
+        s = 1;
+        while (s < n)
+            s <<= 1;
+        v.resize(2*s, id);
     }
 
-    void update(size_t i, T v) {
-        i += size;
-        nodes[i] = v;
+    void update(size_t i, T t) {
+        i += s;
+        v[i] = t;
         while (i > 1) {
             i /= 2;
-            nodes[i] = f(nodes[2*i], nodes[2*i + 1]);
+            v[i] = f(v[2*i], v[2*i + 1]);
         }
     }
 
     T query(size_t i, size_t j) {
-        i += size; j += size;
+        i += s; j += s;
         T l = id, r = id;
         while (i <= j) {
-            if (i % 2 == 1) l = f(l, nodes[i++]);
-            if (j % 2 == 0) r = f(nodes[j--], r);
+            if (i % 2 == 1) l = f(l, v[i++]);
+            if (j % 2 == 0) r = f(v[j--], r);
             i /= 2; j /= 2;
         }
         return f(l, r);

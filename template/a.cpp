@@ -13,9 +13,6 @@ using namespace std;
 
 #define all(x) (x).begin(), (x).end()
 using ll = long long;
-using vb = vector<bool>;
-using vi = vector<int>;
-using vll = vector<ll>;
 
 int main() {
     ios_base::sync_with_stdio(false);

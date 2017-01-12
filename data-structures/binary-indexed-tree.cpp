@@ -12,7 +12,7 @@ template <typename T>
 struct bi_tree{
     vector<T> v;
 
-    bi_tree<T>(int s): v(s+1) {}
+    bi_tree<T>(int n): v(n+1) {}
 
     void inc(int i, T t) {
         for (++i; i < v.size(); i += i & -i)

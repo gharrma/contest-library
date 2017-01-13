@@ -2,6 +2,7 @@
  * Binary indexed tree.
  * Remember that i & -i gives the last bit in an integer.
  * Tree nodes start at index 1.
+ * v := underlying array
  */
 #include <iostream>
 #include <algorithm>
@@ -14,35 +15,35 @@ struct bi_tree {
 
     bi_tree<T>(size_t n): v(n+1) {}
 
-    void inc(size_t i, T t) {
+    void increase(size_t i, T t) {
         for (++i; i < v.size(); i += i & -i)
             v[i] += t;
     }
 
-    T query(size_t i) {
+    T prefix(size_t i) {
         T sum = 0;
         for (++i; i > 0; i -= i & -i)
             sum += v[i];
         return sum;
     }
 
-    T query(size_t l, size_t r) {
-        return query(r) - query(l-1);
+    T range(size_t l, size_t r) {
+        return prefix(r) - prefix(l-1);
     }
 };
 
 int main() {
     bi_tree<int> test(5);
-    test.inc(0, 1);
-    test.inc(1, 2);
-    test.inc(2, 3);
-    test.inc(3, 4);
-    test.inc(4, 5);
-    test.inc(4, 5);
-    cout << test.query(0) << endl; // 1
-    cout << test.query(3) << endl; // 10
-    cout << test.query(4) << endl; // 20
-    cout << test.query(1, 3) << endl; // 9
-    cout << test.query(4, 4) << endl; // 10
+    test.increase(0, 1);
+    test.increase(1, 2);
+    test.increase(2, 3);
+    test.increase(3, 4);
+    test.increase(4, 5);
+    test.increase(4, 5);
+    cout << test.prefix(0) << endl; // 1
+    cout << test.prefix(3) << endl; // 10
+    cout << test.prefix(4) << endl; // 20
+    cout << test.range(1, 3) << endl; // 9
+    cout << test.range(4, 4) << endl; // 10
     return 0;
 }

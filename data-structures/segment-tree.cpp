@@ -2,6 +2,10 @@
  * Segment tree with arbitrary value type and operation.
  * Represented as a perfect binary tree, identity-initialized.
  * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i + 1.
+ * s := size (number of leaves)
+ * v := underlying array
+ * f := group operation (not necessarily commutative)
+ * id := group identity
  */
 #include <iostream>
 #include <algorithm>
@@ -36,12 +40,11 @@ struct seg_tree {
     }
 
     T query(size_t i, size_t j) {
-        i += s; j += s;
+        i += s, j += s;
         T l = id, r = id;
-        while (i <= j) {
+        for (; i <= j; i /= 2, j /= 2) {
             if (i % 2 == 1) l = f(l, v[i++]);
             if (j % 2 == 0) r = f(v[j--], r);
-            i /= 2; j /= 2;
         }
         return f(l, r);
     }

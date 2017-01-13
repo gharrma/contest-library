@@ -9,7 +9,7 @@
 using namespace std;
 
 template <typename T>
-struct bi_tree{
+struct bi_tree {
     vector<T> v;
 
     bi_tree<T>(size_t n): v(n+1) {}

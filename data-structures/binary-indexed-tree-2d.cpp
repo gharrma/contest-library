@@ -9,10 +9,10 @@
 using namespace std;
 
 template <typename T>
-struct bi_tree{
+struct bi_tree_2d {
     vector<vector<T>> v;
 
-    bi_tree<T>(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
+    bi_tree_2d<T>(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
 
     void inc(size_t x, size_t y, T t) {
         for (size_t i = x + 1; i < v.size(); i += i & -i)
@@ -35,7 +35,7 @@ struct bi_tree{
 };
 
 int main() {
-    bi_tree<int> test(5, 10);
+    bi_tree_2d<int> test(5, 10);
     test.inc(0, 0, 1);
     test.inc(1, 1, 2);
     test.inc(2, 3, 3);

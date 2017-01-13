@@ -12,21 +12,21 @@ template <typename T>
 struct bi_tree{
     vector<T> v;
 
-    bi_tree<T>(int n): v(n+1) {}
+    bi_tree<T>(size_t n): v(n+1) {}
 
-    void inc(int i, T t) {
+    void inc(size_t i, T t) {
         for (++i; i < v.size(); i += i & -i)
             v[i] += t;
     }
 
-    T query(int i) {
+    T query(size_t i) {
         T sum = 0;
         for (++i; i > 0; i -= i & -i)
             sum += v[i];
         return sum;
     }
 
-    T query(int l, int r) {
+    T query(size_t l, size_t r) {
         return query(r) - query(l-1);
     }
 };

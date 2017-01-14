@@ -7,6 +7,7 @@
  * h := height
  * v := underlying array
  * lazy := unpropegated updates
+ * d := distance from the leaves
  */
 #include <iostream>
 #include <algorithm>
@@ -26,20 +27,17 @@ struct seg_tree_lazy {
         lazy.resize(s);
     }
 
+    // Add value to a given node, possibly as laziness.
     void apply(size_t i, T t) {
         (i < s ? lazy : v)[i] += t;
     }
 
-    T total(size_t i) {
-        return v[i] + (i < s ? lazy[i] : 0);
-    }
-
-    // Push laziness down along a path from the root to node i.
+    // Push laziness down along a path from the root to leaf node i.
     void push(size_t i) {
-        for (size_t d = h; d > 0; d--) {
+        for (size_t d = h; d > 0; --d) {
             size_t l = i >> d;
             if (lazy[l]) {
-                v[l] += (1 << d) * lazy[l];
+                v[l] += lazy[l] * (1 << d);
                 apply(2*l, lazy[l]);
                 apply(2*l + 1, lazy[l]);
                 lazy[l] = 0;
@@ -47,10 +45,14 @@ struct seg_tree_lazy {
         }
     }
 
-    // Rebuild integrity along a path from node i to the root.
+    // Rebuild sums along a path from leaf node i to the root.
     void rebuild(size_t i) {
-        for (i /= 2; i > 0; i /= 2)
-            v[i] = total(2*i) + total(2*i + 1);
+        for (size_t d = 1; d <= h; ++d) {
+            size_t l = i >> d;
+            v[l] = 0;
+            for (size_t c : {2*l, 2*l + 1})
+                v[l] += v[c] + (c < s ? lazy[c] : 0) * (1 << (d-1));
+        }
     }
 
     void increase(size_t i, size_t j, T t) {
@@ -88,5 +90,7 @@ int main() {
     cout << test.query(0, 4) << endl; // 20
     cout << test.query(1, 3) << endl; // 9
     cout << test.query(4, 4) << endl; // 10
+    test.increase(0, 3, 1);
+    cout << test.query(0, 7) << endl; // 24
     return 0;
 }

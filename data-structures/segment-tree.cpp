@@ -1,7 +1,7 @@
 /*
  * Segment tree with arbitrary value type and operation.
  * Represented as a perfect binary tree, identity-initialized.
- * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i + 1.
+ * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i+1.
  * s := size (number of leaves)
  * v := underlying array
  * f := group operation (not necessarily commutative)
@@ -33,10 +33,8 @@ struct seg_tree {
     void update(size_t i, T t) {
         i += s;
         v[i] = t;
-        while (i > 1) {
-            i /= 2;
-            v[i] = f(v[2*i], v[2*i + 1]);
-        }
+        for (i /= 2; i > 0; i /= 2)
+            v[i] = f(v[2*i], v[2*i+1]);
     }
 
     T query(size_t i, size_t j) {

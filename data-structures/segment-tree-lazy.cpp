@@ -1,7 +1,7 @@
 /*
  * Lazy segment tree supporting range updates.
  * Represented as a perfect binary tree, zero-initialized.
- * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i + 1.
+ * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i+1.
  * Leaf nodes are never lazy.
  * s := size (number of leaves)
  * h := height
@@ -27,40 +27,34 @@ struct seg_tree_lazy {
         lazy.resize(s);
     }
 
-    // Add value to a given node, possibly as laziness.
-    void apply(size_t i, T t) {
-        (i < s ? lazy : v)[i] += t;
+    void apply(size_t i, size_t d, T t) {
+        v[i] += t * (1 << d);
+        if (i < s) lazy[i] += t;
     }
 
-    // Push laziness down along a path from the root to leaf node i.
     void push(size_t i) {
         for (size_t d = h; d > 0; --d) {
             size_t l = i >> d;
             if (lazy[l]) {
-                v[l] += lazy[l] * (1 << d);
-                apply(2*l, lazy[l]);
-                apply(2*l + 1, lazy[l]);
+                apply(2*l,   d-1, lazy[l]);
+                apply(2*l+1, d-1, lazy[l]);
                 lazy[l] = 0;
             }
         }
     }
 
-    // Rebuild sums along a path from leaf node i to the root.
     void rebuild(size_t i) {
         for (size_t d = 1; d <= h; ++d) {
             size_t l = i >> d;
-            v[l] = 0;
-            for (size_t c : {2*l, 2*l + 1})
-                v[l] += v[c] + (c < s ? lazy[c] : 0) * (1 << (d-1));
+            v[l] = v[2*l] + v[2*l+1] + lazy[l] * (1 << d);
         }
     }
 
     void increase(size_t i, size_t j, T t) {
         i += s, j += s;
-        push(i), push(j);
-        for (size_t l = i, r = j; l <= r; l /= 2, r /= 2) {
-            if (l % 2 == 1) apply(l++, t);
-            if (r % 2 == 0) apply(r--, t);
+        for (size_t l = i, r = j, d = 0; l <= r; l /= 2, r /= 2, ++d) {
+            if (l % 2 == 1) apply(l++, d, t);
+            if (r % 2 == 0) apply(r--, d, t);
         }
         rebuild(i), rebuild(j);
     }

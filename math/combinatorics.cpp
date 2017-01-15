@@ -20,8 +20,21 @@ ll inverse(ll n) {
     return pow(n, mod - 2);
 }
 
+// For n on the order of 1e6.
 ll ncr(ll n, ll r) {
     return n < r ? 0 : fact[n] * inverse(fact[r] * fact[n - r] % mod) % mod;
+}
+
+// For very large n and relatively small r.
+ll ncrx(ll n, ll r) {
+    if (n < r || n >= mod)
+        return 0;
+    ll num = 1, denom = 1;
+    for (ll i = 0; i < r; ++i) {
+        denom = denom * (i + 1) % mod;
+        num = (num * (n - i)) % mod;
+    }
+    return num * inverse(denom) % mod;
 }
 
 int main() {

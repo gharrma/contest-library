@@ -36,6 +36,17 @@ ll ncrx(ll n, ll r) {
     return num * inverse(denom) % mod;
 }
 
+struct mll {
+    ll v;
+    mll(ll v = 0): v(v % mod) { if (v < 0) v += mod; }
+    mll operator+(const mll &o) const { return mll(v + o.v); }
+    mll operator-(const mll &o) const { return mll(v - o.v); }
+    mll operator*(const mll &o) const { return mll(v * o.v); }
+    mll operator/(const mll &o) const { return mll(v * inverse(o.v)); }
+    friend ostream& operator<<(ostream &os, mll &n) { return os << n.v; }
+    friend istream& operator>>(istream &is, mll &n) { return is >> n.v; }
+};
+
 int main() {
     fact[0] = fact[1] = 1;
     for (ll i = 2; i <= max_fact; ++i) {

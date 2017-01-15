@@ -11,9 +11,8 @@ double ncrf[max_ncrf + 1][max_ncrf + 1];
 
 ll pow(ll b, ll e) {
     if (e == 0) return 1;
-    ll rec = pow(b, e / 2);
-    if (e % 2 == 0) return rec * rec % mod;
-    else return rec * rec % mod * b % mod;
+    ll rec = pow(b * b, e / 2);
+    return e % 2 ? rec * b % mod : rec;
 }
 
 ll inverse(ll n) {

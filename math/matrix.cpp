@@ -18,7 +18,7 @@ struct matrix {
     T&       operator()(int i, int j)       { return v[n * i + j]; }
     const T& operator()(int i, int j) const { return v[n * i + j]; }
 
-    matrix<T> operator*(const matrix<T>& b){
+    matrix<T> operator*(const matrix<T>& b) const {
         matrix<T> ret(n);
         for (int i = 0; i < n; ++i)
             for (int j = 0; j < n; ++j)
@@ -27,7 +27,7 @@ struct matrix {
         return ret;
     }
 
-    matrix<T> pow(ll e){
+    matrix<T> pow(ll e) const {
         if (e == 0) return matrix<T>(n, T(0), T(1));
         matrix<T> rec = (*this * *this).pow(e / 2);
         return e % 2 ? rec * *this : rec;

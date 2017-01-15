@@ -29,6 +29,8 @@ struct bi_tree_2d {
     }
 
     T range(size_t x1, size_t y1, size_t x2, size_t y2) {
+        if (x2 < x1 || y2 < y1)
+            return 0;
         return prefix(x2, y2) - prefix(x2, y1-1)
                               - prefix(x1-1, y2) + prefix(x1-1, y1-1);
     }

@@ -28,7 +28,7 @@ struct bi_tree {
     }
 
     T range(size_t l, size_t r) {
-        return prefix(r) - prefix(l-1);
+        return r < l ? 0 : prefix(r) - prefix(l-1);
     }
 };
 

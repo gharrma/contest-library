@@ -1,11 +1,7 @@
-Algorithms
-----------
+TODO
+----
 
-- Extended Euclidian Algorithm
-- Primes
-    - Sieve
-- Graphs
-    - Connected Components
-    - Cycles
-    - Tree depth
-    - DFS
+- extended Euclidean algorithm
+- geometry (convex hull, areas, intersecting line segments, etc.)
+- fast Fourier transform
+- add better tests for algorithms

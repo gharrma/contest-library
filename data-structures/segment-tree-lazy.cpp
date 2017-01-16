@@ -87,8 +87,7 @@ int main() {
             s.increase(l, r, val);
         } else {
             size_t l = rand() % n, r = rand() % n;
-            if (r < l)
-                swap(l, r);
+            if (r < l) swap(l, r);
             int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
             if (s.query(l, r) != sum) {
                 cout << "Test failed" << endl;

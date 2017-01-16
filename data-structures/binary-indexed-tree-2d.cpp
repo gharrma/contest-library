@@ -37,18 +37,29 @@ struct bi_tree_2d {
 };
 
 int main() {
-    bi_tree_2d<int> test(5, 10);
-    test.increase(0, 0, 1);
-    test.increase(1, 1, 2);
-    test.increase(2, 3, 3);
-    test.increase(3, 1, 4);
-    test.increase(4, 4, 5);
-    test.increase(4, 4, 5);
-    cout << test.prefix(0, 0) << endl; // 1
-    cout << test.prefix(3, 0) << endl; // 1
-    cout << test.prefix(3, 3) << endl; // 10
-    cout << test.prefix(4, 4) << endl; // 20
-    cout << test.range(1, 1, 2, 3) << endl; // 5
-    cout << test.range(0, 0, 4, 4) << endl; // 20
+    int n = 10;
+    vector<vector<int>> v(n, vector<int>(n));
+    bi_tree_2d<int> b(n, n);
+    for (int t = 0; t < 1e6; ++t) {
+        if (rand() % 2) {
+            int x = rand() % n, y = rand() % n, val = rand() % 100;
+            v[x][y] += val;
+            b.increase(x, y, val);
+        } else {
+            int x1 = rand() % n, y1 = rand() % n;
+            int x2 = rand() % n, y2 = rand() % n;
+            if (x2 < x1) swap(x1, x2);
+            if (y2 < y1) swap(y1, y2);
+            int sum = 0;
+            for (int i = x1; i <= x2; ++i)
+                for (int j = y1; j <= y2; ++j)
+                    sum += v[i][j];
+            if (b.range(x1, y1, x2, y2) != sum) {
+                cout << "Test failed" << endl;
+                return 1;
+            }
+        }
+    }
+    cout << "All tests passed" << endl;
     return 0;
 }

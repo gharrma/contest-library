@@ -59,8 +59,7 @@ int main() {
             s.update(i, val);
         } else {
             size_t l = rand() % n, r = rand() % n;
-            if (r < l)
-                swap(l, r);
+            if (r < l) swap(l, r);
             int max_elem = *max_element(v.begin()+l, v.begin()+r+1);
             if (s.query(l, r) != max_elem) {
                 cout << "Test failed" << endl;

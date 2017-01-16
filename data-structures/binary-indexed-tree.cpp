@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 #include <vector>
 using namespace std;
 
@@ -33,17 +34,24 @@ struct bi_tree {
 };
 
 int main() {
-    bi_tree<int> test(5);
-    test.increase(0, 1);
-    test.increase(1, 2);
-    test.increase(2, 3);
-    test.increase(3, 4);
-    test.increase(4, 5);
-    test.increase(4, 5);
-    cout << test.prefix(0) << endl; // 1
-    cout << test.prefix(3) << endl; // 10
-    cout << test.prefix(4) << endl; // 20
-    cout << test.range(1, 3) << endl; // 9
-    cout << test.range(4, 4) << endl; // 10
+    int n = 100;
+    vector<int> v(n);
+    bi_tree<int> b(n);
+    for (int t = 0; t < 1e6; ++t) {
+        if (rand() % 2) {
+            int i = rand() % n, val = rand() % 100;
+            v[i] += val;
+            b.increase(i, val);
+        } else {
+            size_t l = rand() % n, r = rand() % n;
+            if (r < l) swap(l, r);
+            int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
+            if (b.range(l, r) != sum) {
+                cout << "Test failed" << endl;
+                return 1;
+            }
+        }
+    }
+    cout << "All tests passed" << endl;
     return 0;
 }

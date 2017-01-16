@@ -11,6 +11,7 @@
  */
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 #include <vector>
 using namespace std;
 
@@ -32,6 +33,7 @@ struct seg_tree_lazy {
         if (i < s) lazy[i] += t;
     }
 
+    // Push laziness down along a path from the root to leaf node i.
     void push(size_t i) {
         for (size_t d = h; d > 0; --d) {
             size_t l = i >> d;
@@ -43,6 +45,7 @@ struct seg_tree_lazy {
         }
     }
 
+    // Repair consistency along a path from leaf node i to the root.
     void rebuild(size_t i) {
         for (size_t d = 1; d <= h; ++d) {
             size_t l = i >> d;
@@ -72,19 +75,27 @@ struct seg_tree_lazy {
 };
 
 int main() {
-    seg_tree_lazy<int> test(5);
-    test.increase(0, 0, 1);
-    test.increase(1, 1, 2);
-    test.increase(2, 2, 3);
-    test.increase(3, 3, 4);
-    test.increase(4, 4, 5);
-    test.increase(4, 4, 5);
-    cout << test.query(0, 0) << endl; // 1
-    cout << test.query(0, 3) << endl; // 10
-    cout << test.query(0, 4) << endl; // 20
-    cout << test.query(1, 3) << endl; // 9
-    cout << test.query(4, 4) << endl; // 10
-    test.increase(0, 3, 1);
-    cout << test.query(0, 7) << endl; // 24
+    int n = 100;
+    vector<int> v(n);
+    seg_tree_lazy<int> s(n);
+    for (int t = 0; t < 1e6; ++t) {
+        if (rand() % 2) {
+            size_t l = rand() % n, r = rand() % n;
+            int val = rand() % 100;
+            for (int i = l; i <= r; ++i)
+                v[i] += val;
+            s.increase(l, r, val);
+        } else {
+            size_t l = rand() % n, r = rand() % n;
+            if (r < l)
+                swap(l, r);
+            int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
+            if (s.query(l, r) != sum) {
+                cout << "Test failed" << endl;
+                return 1;
+            }
+        }
+    }
+    cout << "All tests passed" << endl;
     return 0;
 }

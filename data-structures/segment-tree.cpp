@@ -49,14 +49,25 @@ struct seg_tree {
 };
 
 int main() {
-    seg_tree<int> test(5, [] (int l, int r) {return max(l,r);});
-    test.update(0, 3);
-    test.update(1, 2);
-    test.update(2, 4);
-    test.update(3, 1);
-    test.update(4, 5);
-    cout << test.query(0, 2) << endl; // 4
-    cout << test.query(3, 4) << endl; // 5
-    cout << test.query(1, 3) << endl; // 4
+    int n = 100;
+    vector<int> v(n);
+    seg_tree<int> s(n, [] (int l, int r) { return max(l, r); });
+    for (int t = 0; t < 1e6; ++t) {
+        if (rand() % 2) {
+            int i = rand() % n, val = rand() % 100;
+            v[i] = val;
+            s.update(i, val);
+        } else {
+            size_t l = rand() % n, r = rand() % n;
+            if (r < l)
+                swap(l, r);
+            int max_elem = *max_element(v.begin()+l, v.begin()+r+1);
+            if (s.query(l, r) != max_elem) {
+                cout << "Test failed" << endl;
+                return 1;
+            }
+        }
+    }
+    cout << "All tests passed" << endl;
     return 0;
 }

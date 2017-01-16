@@ -14,7 +14,7 @@ struct union_find {
     vector<size_t> p, s, r;
     size_t c;
 
-    union_find (size_t n): p(n), s(n, 1), r(n), c(n) {
+    union_find(size_t n): p(n), s(n, 1), r(n), c(n) {
         for (size_t i = 0; i < n; ++i)
             p[i] = i;
     }
@@ -24,7 +24,7 @@ struct union_find {
     }
 
     void merge(size_t a, size_t b) {
-        a = rep(a); b = rep(b);
+        a = rep(a), b = rep(b);
         if (a == b)
             return;
         if (r[a] > r[b])
@@ -42,11 +42,29 @@ struct union_find {
 };
 
 int main() {
-    union_find test(10);
-    test.merge(1, 5);
-    test.merge(1, 3);
-    test.merge(3, 3);
-    cout << test.rep(3) << endl; // 5
-    cout << test.c << endl; // 8
+    int n = 1000;
+    vector<int> v(n);
+    for (int i = 0; i < n; ++i)
+        v[i] = i;
+    union_find u(n);
+    for (int t = 0; t < 1e4; ++t) {
+        if (rand() % 2) {
+            int a = rand() % n, b = rand() % n;
+            u.merge(a, b);
+            int rep = v[a];
+            for (int i = 0; i < n; ++i)
+                if (v[i] == rep)
+                    v[i] = v[b];
+        } else {
+            int i = rand() % n;
+            for (int j = 0; j < n; ++j) {
+                if ((u.rep(i) == u.rep(j)) != (v[i] == v[j])) {
+                    cout << "Test failed" << endl;
+                    return 1;
+                }
+            }
+        }
+    }
+    cout << "All tests passed" << endl;
     return 0;
 }

@@ -6,12 +6,12 @@
  * c := child (neighbor) of current node
  * w := edge weight
  *
- * Dijkstra
+ * Dijkstra:
  * - returns distances from node s to every other
  * - negative edge weights not supported
  * - can use `prev` to recover paths
  *
- * Floyd-Warshall
+ * Floyd-Warshall:
  * - returns distances between every pair of nodes
  * - negative cycles not supported
  * - can use `next` to recover paths

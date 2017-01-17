@@ -61,7 +61,7 @@ int main() {
         } else {
             size_t l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);
-            int max_elem = *max_element(v.begin()+l, v.begin()+r+1);
+            int max_elem = *max_element(v.begin() + l, v.begin() + r + 1);
             assert(s.query(l, r) == max_elem);
         }
     }

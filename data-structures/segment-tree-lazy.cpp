@@ -8,6 +8,8 @@
  * v := underlying array
  * lazy := unpropegated updates
  * d := distance from the leaves
+ * push := push laziness down along a path from the root to leaf node i
+ * pull := repair consistency along a path from leaf node i to the root
  */
 #include <iostream>
 #include <algorithm>
@@ -22,8 +24,7 @@ struct seg_tree_lazy {
     vector<T> v, lazy;
 
     seg_tree_lazy<T>(size_t n) {
-        s = 1, h = 1;
-        while (s < n)
+        for (s = 1, h = 1; s < n; )
             s <<= 1, ++h;
         v.resize(2*s);
         lazy.resize(s);
@@ -34,7 +35,6 @@ struct seg_tree_lazy {
         if (i < s) lazy[i] += t;
     }
 
-    // Push laziness down along a path from the root to leaf node i.
     void push(size_t i) {
         for (size_t d = h; d > 0; --d) {
             size_t l = i >> d;
@@ -46,8 +46,7 @@ struct seg_tree_lazy {
         }
     }
 
-    // Repair consistency along a path from leaf node i to the root.
-    void rebuild(size_t i) {
+    void pull(size_t i) {
         for (size_t d = 1; d <= h; ++d) {
             size_t l = i >> d;
             v[l] = v[2*l] + v[2*l+1] + lazy[l] * (1 << d);
@@ -60,7 +59,7 @@ struct seg_tree_lazy {
             if (l % 2 == 1) apply(l++, d, t);
             if (r % 2 == 0) apply(r--, d, t);
         }
-        rebuild(i), rebuild(j);
+        pull(i), pull(j);
     }
 
     T query(size_t i, size_t j) {

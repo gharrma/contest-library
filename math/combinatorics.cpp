@@ -31,21 +31,10 @@ ll ncrx(ll n, ll r) {
     ll num = 1, denom = 1;
     for (ll i = 0; i < r; ++i) {
         denom = denom * (i + 1) % mod;
-        num = (num * (n - i)) % mod;
+        num = num * (n - i) % mod;
     }
     return num * inverse(denom) % mod;
 }
-
-struct mll {
-    ll v;
-    mll(ll v = 0): v(v % mod) { if (v < 0) v += mod; }
-    mll operator+(const mll &o) const { return mll(v + o.v); }
-    mll operator-(const mll &o) const { return mll(v - o.v); }
-    mll operator*(const mll &o) const { return mll(v * o.v); }
-    mll operator/(const mll &o) const { return mll(v * inverse(o.v)); }
-    friend ostream& operator<<(ostream &os, mll &n) { return os << n.v; }
-    friend istream& operator>>(istream &is, mll &n) { return is >> n.v; }
-};
 
 int main() {
     fact[0] = fact[1] = 1;

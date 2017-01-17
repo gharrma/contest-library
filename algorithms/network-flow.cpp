@@ -67,7 +67,7 @@ private:
         // no path; remove negative flows, calculate total flow and min cut
         for (size_t i = 0; i < n_nodes; i++)
             for (size_t j = 0; j < n_nodes; j++)
-                flow[i][j] = max(0, flow[i][j]);
+                flow[i][j] = max(0ll, flow[i][j]);
 
         for (size_t i = 0; i < n_nodes; i++)
             total_flow += flow[source][i];

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <numeric>
 #include <vector>
+#include <cassert>
 using namespace std;
 
 template <typename T>
@@ -78,7 +79,7 @@ int main() {
     int n = 100;
     vector<int> v(n);
     seg_tree_lazy<int> s(n);
-    for (int t = 0; t < 1e6; ++t) {
+    for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             size_t l = rand() % n, r = rand() % n;
             int val = rand() % 100;
@@ -89,10 +90,7 @@ int main() {
             size_t l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);
             int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
-            if (s.query(l, r) != sum) {
-                cout << "Test failed" << endl;
-                return 1;
-            }
+            assert(s.query(l, r) == sum);
         }
     }
     cout << "All tests passed" << endl;

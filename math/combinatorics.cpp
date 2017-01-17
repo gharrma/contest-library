@@ -1,12 +1,12 @@
 #include <iostream>
 using namespace std;
 using ll = long long;
-constexpr ll mod = 1e9 + 7;
+constexpr ll mod = 1000000000 + 7;
 
-constexpr size_t max_fact = 1e6;
+constexpr size_t max_fact = 1000000;
 ll fact[max_fact + 1];
 
-constexpr size_t max_ncrf = 1e3;
+constexpr size_t max_ncrf = 1000;
 double ncrf[max_ncrf + 1][max_ncrf + 1];
 
 ll pow(ll b, ll e) {

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cassert>
 using namespace std;
 
 template <typename T>
@@ -40,7 +41,7 @@ int main() {
     int n = 10;
     vector<vector<int>> v(n, vector<int>(n));
     bi_tree_2d<int> b(n, n);
-    for (int t = 0; t < 1e6; ++t) {
+    for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             int x = rand() % n, y = rand() % n, val = rand() % 100;
             v[x][y] += val;
@@ -54,10 +55,7 @@ int main() {
             for (int i = x1; i <= x2; ++i)
                 for (int j = y1; j <= y2; ++j)
                     sum += v[i][j];
-            if (b.range(x1, y1, x2, y2) != sum) {
-                cout << "Test failed" << endl;
-                return 1;
-            }
+            assert(b.range(x1, y1, x2, y2) == sum);
         }
     }
     cout << "All tests passed" << endl;

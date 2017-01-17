@@ -10,6 +10,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cassert>
 using namespace std;
 
 template <typename T>
@@ -52,7 +53,7 @@ int main() {
     int n = 100;
     vector<int> v(n);
     seg_tree<int> s(n, [] (int l, int r) { return max(l, r); });
-    for (int t = 0; t < 1e6; ++t) {
+    for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             int i = rand() % n, val = rand() % 100;
             v[i] = val;
@@ -61,10 +62,7 @@ int main() {
             size_t l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);
             int max_elem = *max_element(v.begin()+l, v.begin()+r+1);
-            if (s.query(l, r) != max_elem) {
-                cout << "Test failed" << endl;
-                return 1;
-            }
+            assert(s.query(l, r) == max_elem);
         }
     }
     cout << "All tests passed" << endl;

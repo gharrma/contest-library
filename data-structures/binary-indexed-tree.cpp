@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <numeric>
 #include <vector>
+#include <cassert>
 using namespace std;
 
 template <typename T>
@@ -37,7 +38,7 @@ int main() {
     int n = 100;
     vector<int> v(n);
     bi_tree<int> b(n);
-    for (int t = 0; t < 1e6; ++t) {
+    for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             int i = rand() % n, val = rand() % 100;
             v[i] += val;
@@ -46,10 +47,7 @@ int main() {
             size_t l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);
             int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
-            if (b.range(l, r) != sum) {
-                cout << "Test failed" << endl;
-                return 1;
-            }
+            assert(b.range(l, r) == sum);
         }
     }
     cout << "All tests passed" << endl;

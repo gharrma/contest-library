@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cassert>
 using namespace std;
 
 struct union_find {
@@ -47,7 +48,7 @@ int main() {
     for (int i = 0; i < n; ++i)
         v[i] = i;
     union_find u(n);
-    for (int t = 0; t < 1e4; ++t) {
+    for (int t = 0; t < 10000; ++t) {
         if (rand() % 2) {
             int a = rand() % n, b = rand() % n;
             u.merge(a, b);
@@ -57,12 +58,8 @@ int main() {
                     v[i] = v[b];
         } else {
             int i = rand() % n;
-            for (int j = 0; j < n; ++j) {
-                if ((u.rep(i) == u.rep(j)) != (v[i] == v[j])) {
-                    cout << "Test failed" << endl;
-                    return 1;
-                }
-            }
+            for (int j = 0; j < n; ++j)
+                assert((u.rep(i) == u.rep(j)) == (v[i] == v[j]));
         }
     }
     cout << "All tests passed" << endl;

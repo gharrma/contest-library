@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cassert>
 using namespace std;
 using ll = long long;
 
@@ -8,7 +9,7 @@ struct matrix {
     int n;
     vector<T> v;
 
-    matrix<T>(int n, T diag = T(0), T fill = T(0))
+    matrix<T>(int n, T diag = 0, T fill = 0)
         : n(n), v(n * n, fill)
     {
         for (int i = 0; i < n; i++)
@@ -37,7 +38,7 @@ struct matrix {
     }
 
     matrix<T> pow(ll e) const {
-        if (e == 0) return matrix<T>(n, T(1));
+        if (e == 0) return matrix<T>(n, 1);
         matrix<T> rec = (*this * *this).pow(e / 2);
         return e % 2 ? rec * *this : rec;
     }
@@ -60,10 +61,9 @@ ostream& operator<<(ostream& os, const matrix<T>& m) {
 
 int main() {
     matrix<int> a(2, {1, 2, 3, 4}), b(2, {4, 3, 2, 1}), id(2, 1);
-    bool pass = true;
-    pass &= a + b == matrix<int>(2, 5, 5);
-    pass &= id * a * b * id == matrix<int>(2, {8, 5, 20, 13});
-    pass &= a.pow(3) == matrix<int>(2, {37, 54, 81, 118});
-    cout << (pass ? "All tests passed" : "Test failed") << endl;
-    return pass ? 0 : 1;
+    assert(a + b == matrix<int>(2, 5, 5));
+    assert(id * a * b * id == matrix<int>(2, {8, 5, 20, 13}));
+    assert(a.pow(3) == matrix<int>(2, {37, 54, 81, 118}));
+    cout << "All tests passed" << endl;
+    return 0;
 }

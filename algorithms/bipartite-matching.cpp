@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cassert>
 using namespace std;
 
 struct bipartite_graph {
@@ -51,6 +52,7 @@ int main() {
     g.edge(3, 1);
     g.edge(3, 2);
     g.edge(3, 3);
-    cout << g.matching() << endl; // 3
+    assert(g.matching() == 3);
+    cout << "All tests passed" << endl;
     return 0;
 }

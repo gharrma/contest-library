@@ -8,7 +8,7 @@ struct matrix {
     int n;
     vector<T> v;
 
-    matrix<T>(int n, T fill = T(0), T diag = T(0))
+    matrix<T>(int n, T diag = T(0), T fill = T(0))
         : n(n), v(n * n, fill)
     {
         for (int i = 0; i < n; i++)
@@ -20,6 +20,13 @@ struct matrix {
     T&       operator()(int i, int j)       { return v[n * i + j]; }
     const T& operator()(int i, int j) const { return v[n * i + j]; }
 
+    matrix<T> operator+(const matrix<T>& b) const {
+        matrix<T> ret = b;
+        for (int i = 0; i < n * n; ++i)
+            ret.v[i] += v[i];
+        return ret;
+    }
+
     matrix<T> operator*(const matrix<T>& b) const {
         matrix<T> ret(n);
         for (int i = 0; i < n; ++i)
@@ -30,7 +37,7 @@ struct matrix {
     }
 
     matrix<T> pow(ll e) const {
-        if (e == 0) return matrix<T>(n, T(0), T(1));
+        if (e == 0) return matrix<T>(n, T(1));
         matrix<T> rec = (*this * *this).pow(e / 2);
         return e % 2 ? rec * *this : rec;
     }
@@ -42,20 +49,20 @@ struct matrix {
 template <typename T>
 ostream& operator<<(ostream& os, const matrix<T>& m) {
     for (int i = 0; i < m.n; ++i) {
-        if (i) cout << endl;
         for (int j = 0; j < m.n; ++j) {
             if (j) cout << " ";
             cout << m.v[m.n * i + j];
         }
+        cout << endl;
     }
     return os;
 }
 
 int main() {
-    matrix<int> a(2, {1, 2, 3, 4}), b(2, {4, 3, 2, 1}), id(2, 0, 1);
-    auto c = id * a * b * id;
+    matrix<int> a(2, {1, 2, 3, 4}), b(2, {4, 3, 2, 1}), id(2, 1);
     bool pass = true;
-    pass &= c == matrix<int>(2, {8, 5, 20, 13});
+    pass &= a + b == matrix<int>(2, 5, 5);
+    pass &= id * a * b * id == matrix<int>(2, {8, 5, 20, 13});
     pass &= a.pow(3) == matrix<int>(2, {37, 54, 81, 118});
     cout << (pass ? "All tests passed" : "Test failed") << endl;
     return pass ? 0 : 1;

@@ -1,14 +1,25 @@
 /*
- * A graph data structure supporting various algorithms.
+ * A graph data structure and various algorithms.
  * Supports directed, weighted, and duplicate edges.
  * n := number of nodes
  * x := current node
- * c := child of current node
+ * c := child (neighbor) of current node
  * w := edge weight
+ *
+ * Dijkstra
+ * - returns distances from node s to every other
+ * - negative edge weights not supported
+ * - can use `prev` to recover paths
+ *
+ * Floyd-Warshall
+ * - returns distances between every pair of nodes
+ * - negative cycles not supported
+ * - can use `next` to recover paths
  */
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <cassert>
 using namespace std;
 
@@ -23,10 +34,9 @@ struct graph {
     void arc (int i, int j, T w) { adj[i].emplace_back(j, w); }
     void edge(int i, int j, T w) { arc(i, j, w), arc(j, i, w); }
 
-    // Returns distances from node s to every other.
-    // Negative edge weights not supported.
     vector<T> dijkstra(int s) {
         vector<T> dist(n, T(infty));
+        vector<int> prev(n, -1);
         dist[s] = 0;
         vector<bool> done(n);
         priority_queue<pair<T,int>,
@@ -45,6 +55,7 @@ struct graph {
                 T w = p.second;
                 if (!done[c] && dist[c] > dist[x] + w) {
                     dist[c] = dist[x] + w;
+                    prev[c] = x;
                     q.emplace(dist[c], c);
                 }
             }
@@ -53,8 +64,6 @@ struct graph {
         return dist;
     }
 
-    // Returns distances between every pair of nodes.
-    // Negative cycles not supported.
     vector<vector<T>> floyd_warshall() {
         vector<vector<T>> dist(n, vector<T>(n, T(infty)));
         vector<vector<int>> next(n, vector<int>(n, -1));

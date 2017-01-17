@@ -13,22 +13,16 @@
 #include <cassert>
 using namespace std;
 
-template <typename T>
+template <typename T, typename Op>
 struct seg_tree {
     size_t s;
     vector<T> v;
-    function<T(T,T)> f;
-    T id;
+    Op f;
 
-    seg_tree<T>(size_t n,
-                function<T(T,T)> f = [] (T l, T r) {return l + r;},
-                T id = T())
-        : id(id), f(f)
-    {
-        s = 1;
-        while (s < n)
+    seg_tree<T, Op>(size_t n) {
+        for (s = 1; s < n; )
             s <<= 1;
-        v.resize(2*s, id);
+        v.resize(2*s, T(Op::id));
     }
 
     void update(size_t i, T t) {
@@ -40,7 +34,7 @@ struct seg_tree {
 
     T query(size_t i, size_t j) {
         i += s, j += s;
-        T l = id, r = id;
+        T l = Op::id, r = Op::id;
         for (; i <= j; i /= 2, j /= 2) {
             if (i % 2 == 1) l = f(l, v[i++]);
             if (j % 2 == 0) r = f(v[j--], r);
@@ -49,10 +43,15 @@ struct seg_tree {
     }
 };
 
+struct op {
+    static constexpr int id = 0;
+    int operator()(int a, int b) { return max(a, b); }
+};
+
 int main() {
     int n = 100;
     vector<int> v(n);
-    seg_tree<int> s(n, [] (int l, int r) { return max(l, r); });
+    seg_tree<int, op> s(n);
     for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             int i = rand() % n, val = rand() % 100;

@@ -40,8 +40,6 @@ struct seg_tree_lazy {
         dirty.resize(s);
     }
 
-    static T noop(T t, size_t d) { return t; }
-
     void apply(size_t i, size_t d, const Update& u) {
         v[i] = u(v[i], d);
         if (i < s) {
@@ -65,7 +63,8 @@ struct seg_tree_lazy {
     void pull(size_t i) {
         for (size_t d = 1; d <= h; ++d) {
             size_t l = i >> d;
-            v[l] = lazy[l](f(v[2*l], v[2*l+1]), d);
+            T combined = f(v[2*l], v[2*l+1]);
+            v[l] = lazy[l](combined, d);
         }
     }
 

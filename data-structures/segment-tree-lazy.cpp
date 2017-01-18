@@ -8,7 +8,6 @@
  * h := height
  * v := underlying array
  * lazy := unpropagated updates
- * dirty := whether a node has unpropagated updates
  * f := group operation (not necessarily commutative)
  * id := group identity
  * d := distance from the leaves
@@ -29,7 +28,6 @@ struct seg_tree_lazy {
     size_t s, h;
     vector<T> v;
     vector<Update> lazy;
-    vector<bool> dirty;
     Op f;
 
     seg_tree_lazy<T, Op, Update>(size_t n) {
@@ -37,25 +35,21 @@ struct seg_tree_lazy {
             s <<= 1, ++h;
         v.resize(2*s, T(Op::id));
         lazy.resize(s);
-        dirty.resize(s);
     }
 
     void apply(size_t i, size_t d, const Update& u) {
         v[i] = u(v[i], d);
-        if (i < s) {
+        if (i < s)
             lazy[i] = lazy[i] + u;
-            dirty[i] = true;
-        }
     }
 
     void push(size_t i) {
         for (size_t d = h; d > 0; --d) {
             size_t l = i >> d;
-            if (dirty[l]) {
+            if (lazy[l]) {
                 apply(2*l,   d-1, lazy[l]);
                 apply(2*l+1, d-1, lazy[l]);
                 lazy[l] = Update();
-                dirty[l] = false;
             }
         }
     }
@@ -101,6 +95,8 @@ struct update {
     int x;
 
     update(kind k = kNoop, int x = 0): k(k), x(x) {}
+
+    explicit operator bool() const { return k != kNoop; }
 
     int operator()(int n, size_t d) const {
         switch (k) {

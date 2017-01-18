@@ -64,6 +64,25 @@ struct graph {
         return dist;
     }
 
+    vector<T> bellman_ford(int s, bool& negative_cycle) {
+        negative_cycle = false;
+        vector<T> dist(n, T(infty));
+        vector<int> prev(n, -1);
+        dist[s] = 0;
+        for (int i = 0; i < n - 1; ++i)
+            for (int x = 0; x < n; ++x)
+                for (auto& p : adj[x])
+                    if (dist[p.first] > dist[x] + p.second) {
+                        dist[p.first] = dist[x] + p.second;
+                        prev[p.first] = x;
+                    }
+        for (int x = 0; x < n; ++x)
+            for (auto& p : adj[x])
+                if (dist[p.first] > dist[x] + p.second)
+                    negative_cycle = true;
+        return dist;
+    }
+
     vector<vector<T>> floyd_warshall() {
         vector<vector<T>> dist(n, vector<T>(n, T(infty)));
         vector<vector<int>> next(n, vector<int>(n, -1));
@@ -95,6 +114,14 @@ int main() {
     g.arc(3, 2, 3);
     assert(g.dijkstra(0) == vector<int>({0, 2, 3, 1}));
 
+    g = graph<int>(3);
+    g.edge(0, 1, 3);
+    g.edge(1, 2, -2);
+    g.edge(2, 0, -2);
+    bool negative_cycle;
+    g.bellman_ford(0, negative_cycle);
+    assert(negative_cycle);
+
     int n = 20;
     g = graph<int>(n);
     for (int i = 0; i < 1000; ++i) {
@@ -102,10 +129,13 @@ int main() {
             g.arc(rand() % n, rand() % n, rand() % 1000);
         } else {
             int s = rand() % n;
+            negative_cycle = false;
             auto dij = g.dijkstra(s);
+            auto bf = g.bellman_ford(s, negative_cycle);
             auto fw = g.floyd_warshall();
+            assert(!negative_cycle);
             for (int i = 0; i < n; ++i)
-                assert(dij[i] == fw[s][i]);
+                assert(dij[i] == bf[i] && bf[i] == fw[s][i]);
         }
     }
 

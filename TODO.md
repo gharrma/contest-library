@@ -6,3 +6,4 @@ TODO
 - fast Fourier transform
 - add better tests for algorithms
 - A* search
+- meet-in-the-middle search

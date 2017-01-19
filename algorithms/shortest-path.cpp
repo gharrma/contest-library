@@ -1,5 +1,5 @@
 /*
- * A graph data structure and various algorithms.
+ * A graph data structure with shortest path algorithms.
  * Supports directed, weighted, and duplicate edges.
  * n := number of nodes
  * x := current node

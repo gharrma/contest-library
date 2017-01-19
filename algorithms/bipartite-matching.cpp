@@ -7,12 +7,12 @@
 #include <cassert>
 using namespace std;
 
-struct bipartite_graph {
+struct graph {
     int a, b;
     vector<vector<int>> adj;
     vector<int> visit, match;
 
-    bipartite_graph(int a, int b)
+    graph(int a, int b)
         : a(a), b(b), adj(a+b), visit(a+b, -1), match(a+b, -1) {}
 
     void edge(int i, int j) {
@@ -42,7 +42,7 @@ struct bipartite_graph {
 };
 
 int main() {
-    bipartite_graph g(4, 4);
+    graph g(4, 4);
     g.edge(0, 0);
     g.edge(0, 1);
     g.edge(1, 0);

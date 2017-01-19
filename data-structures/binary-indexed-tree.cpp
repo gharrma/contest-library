@@ -12,10 +12,10 @@
 using namespace std;
 
 template <typename T>
-struct bi_tree {
+struct bit {
     vector<T> v;
 
-    bi_tree<T>(size_t n): v(n+1) {}
+    bit<T>(size_t n): v(n+1) {}
 
     void increase(size_t i, T t) {
         for (++i; i < v.size(); i += i & -i)
@@ -47,7 +47,7 @@ struct bi_tree {
 int main() {
     int n = 100;
     vector<int> v(n);
-    bi_tree<int> b(n);
+    bit<int> b(n);
     int total_val = 0;
     for (int t = 0; t < 1000000; ++t) {
         int r = rand() % 3;

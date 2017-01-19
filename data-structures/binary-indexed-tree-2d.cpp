@@ -10,10 +10,10 @@
 using namespace std;
 
 template <typename T>
-struct bi_tree_2d {
+struct bit_2d {
     vector<vector<T>> v;
 
-    bi_tree_2d<T>(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
+    bit_2d<T>(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
 
     void increase(size_t x, size_t y, T t) {
         for (size_t i = x + 1; i < v.size(); i += i & -i)
@@ -40,7 +40,7 @@ struct bi_tree_2d {
 int main() {
     int n = 10;
     vector<vector<int>> v(n, vector<int>(n));
-    bi_tree_2d<int> b(n, n);
+    bit_2d<int> b(n, n);
     for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             int x = rand() % n, y = rand() % n, val = rand() % 100;

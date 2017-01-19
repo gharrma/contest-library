@@ -5,15 +5,15 @@
  * Leaf nodes are never lazy.
  *
  * Optimized for two types of updates:
- * - Set all elements in a range to a constant group element
- * - Operate over a range of elements using a constant group element
+ * - Set all elements in a range to a constant monoid element
+ * - Operate over a range of elements using a constant monoid element
  *
  * s := size (number of leaves)
  * h := height
  * v := underlying array
  * lazy := unpropagated updates
- * id := group identity
- * op := group operation (not necessarily commutative)
+ * id := monoid identity
+ * op := monoid operation (not necessarily commutative)
  * d := distance from the leaves
  * u := an update to a value t at distance d, supporting composition
  * push := push laziness down along a path from the root to leaf node i
@@ -27,18 +27,18 @@
 #include <cassert>
 using namespace std;
 
-template <typename Group>
+template <typename Monoid>
 struct seg_tree_lazy {
-    using T = typename Group::T;
-    using Update = typename Group::update;
+    using T = typename Monoid::T;
+    using Update = typename Monoid::update;
     size_t s, h;
     vector<T> v;
     vector<Update> lazy;
 
-    seg_tree_lazy<Group>(size_t n) {
+    seg_tree_lazy<Monoid>(size_t n) {
         for (s = 1, h = 1; s < n; )
             s <<= 1, ++h;
-        v.resize(2*s, T(Group::id));
+        v.resize(2*s, T(Monoid::id));
         lazy.resize(s);
     }
 
@@ -62,7 +62,7 @@ struct seg_tree_lazy {
     void pull(size_t i) {
         for (size_t d = 1; d <= h; ++d) {
             size_t l = i >> d;
-            T combined = Group::op(v[2*l], v[2*l+1]);
+            T combined = Monoid::op(v[2*l], v[2*l+1]);
             v[l] = lazy[l].apply(combined, d);
         }
     }
@@ -80,16 +80,16 @@ struct seg_tree_lazy {
     T query(size_t i, size_t j) {
         i += s, j += s;
         push(i), push(j);
-        T l = Group::id, r = Group::id;
+        T l = Monoid::id, r = Monoid::id;
         for (; i <= j; i /= 2, j /= 2) {
-            if (i % 2 == 1) l = Group::op(l, v[i++]);
-            if (j % 2 == 0) r = Group::op(v[j--], r);
+            if (i % 2 == 1) l = Monoid::op(l, v[i++]);
+            if (j % 2 == 0) r = Monoid::op(v[j--], r);
         }
-        return Group::op(l, r);
+        return Monoid::op(l, r);
     }
 };
 
-struct group {
+struct monoid {
     using T = int;
     static constexpr T id = 0;
     static T op(T a, T b) { return a + b; }
@@ -97,7 +97,7 @@ struct group {
     struct update;
 };
 
-struct group::update {
+struct monoid::update {
     enum kind { kNoop, kSet, kOperate };
     kind k;
     T x;
@@ -129,17 +129,17 @@ struct group::update {
 int main() {
     int n = 100;
     vector<int> v(n);
-    seg_tree_lazy<group> s(n);
+    seg_tree_lazy<monoid> s(n);
     for (int t = 0; t < 1000000; ++t) {
         if (rand() % 2) {
             size_t l = rand() % n, r = rand() % n;
             int val = rand() % 100;
             auto kind = rand() % 2
-                ? group::update::kOperate
-                : group::update::kSet;
+                ? monoid::update::kOperate
+                : monoid::update::kSet;
             for (int i = l; i <= r; ++i)
-                v[i] = val + (kind == group::update::kOperate ? v[i] : 0);
-            s.update(l, r, group::update(kind, val));
+                v[i] = val + (kind == monoid::update::kOperate ? v[i] : 0);
+            s.update(l, r, monoid::update(kind, val));
         } else {
             size_t l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);

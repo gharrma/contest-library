@@ -1,5 +1,6 @@
 /*
- * Lazy segment tree supporting arbitrary range updates and queries.
+ * Lazy segment tree supporting an arbitrary monoid.
+ * Range updates form a monoid action over T.
  * Represented as a perfect binary tree, zero-initialized.
  * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i+1.
  * Leaf nodes are never lazy.
@@ -30,7 +31,7 @@ using namespace std;
 template <typename Monoid>
 struct seg_tree_lazy {
     using T = typename Monoid::T;
-    using Update = typename Monoid::update;
+    using Update = typename Monoid::act;
     size_t s, h;
     vector<T> v;
     vector<Update> lazy;
@@ -94,15 +95,15 @@ struct monoid {
     static constexpr T id = 0;
     static T op(T a, T b) { return a + b; }
     static T exp(T x, size_t e) { return x * e; }
-    struct update;
+    struct act;
 };
 
-struct monoid::update {
+struct monoid::act {
     enum kind { kNoop, kSet, kOperate };
     kind k;
     T x;
 
-    update(kind k = kNoop, T x = id): k(k), x(x) {}
+    act(kind k = kNoop, T x = id): k(k), x(x) {}
 
     bool isNoop() const { return k == kNoop; }
 
@@ -114,14 +115,14 @@ struct monoid::update {
         }
     }
 
-    update compose(const update& other) const {
+    act compose(const act& other) const {
         if (other.k == kNoop || k == kSet) {
             return *this;
         } else if (k == kNoop) {
             return other;
         } else {
             assert(k == kOperate);
-            return update(other.k, op(other.x, x));
+            return act(other.k, op(other.x, x));
         }
     }
 };
@@ -135,11 +136,11 @@ int main() {
             size_t l = rand() % n, r = rand() % n;
             int val = rand() % 100;
             auto kind = rand() % 2
-                ? monoid::update::kOperate
-                : monoid::update::kSet;
+                ? monoid::act::kOperate
+                : monoid::act::kSet;
             for (int i = l; i <= r; ++i)
-                v[i] = val + (kind == monoid::update::kOperate ? v[i] : 0);
-            s.update(l, r, monoid::update(kind, val));
+                v[i] = val + (kind == monoid::act::kOperate ? v[i] : 0);
+            s.update(l, r, monoid::act(kind, val));
         } else {
             size_t l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);

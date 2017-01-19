@@ -1,5 +1,5 @@
 /*
- * Segment tree with arbitrary value type and operation.
+ * Segment tree supporting an arbitrary monoid.
  * Represented as a perfect binary tree, identity-initialized.
  * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i+1.
  * s := size (number of leaves)

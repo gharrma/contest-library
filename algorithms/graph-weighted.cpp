@@ -17,11 +17,15 @@
  * Floyd-Warshall:
  * - returns distances between every pair of nodes
  * - negative cycles not supported
+ *
+ * Mst:
+ * - uses Prim's algorithm to return the weight of the minimum spanning tree
  */
 #include <iostream>
 #include <vector>
 #include <queue>
 #include <stack>
+#include <tuple>
 #include <cassert>
 using namespace std;
 
@@ -109,6 +113,30 @@ struct graph {
 
         return make_pair(dist, next);
     }
+
+    T mst() {
+        vector<bool> done(n);
+        priority_queue<pair<T,int>,
+                       vector<pair<T,int>>,
+                       greater<pair<T,int>>> q;
+        q.push(make_pair(0, 0));
+        T ret = 0;
+
+        while (!q.empty()) {
+            T w; int c;
+            tie(w, c) = q.top();
+            q.pop();
+            if (!done[c]) {
+                done[c] = true;
+                ret += w;
+                for (auto& p : adj[c]) {
+                    q.push(make_pair(p.second, p.first));
+                }
+            }
+        }
+
+        return ret;
+    }
 };
 
 int main() {
@@ -118,6 +146,7 @@ int main() {
     g.arc(0, 3, 1);
     g.arc(3, 2, 3);
     assert(g.dijkstra(0).first == vector<int>({0, 2, 3, 1}));
+    assert(g.mst() == 4);
 
     g = graph<int>(3);
     g.edge(0, 1, 3);
@@ -126,10 +155,11 @@ int main() {
     bool negative_cycle;
     g.bellman_ford(0, negative_cycle);
     assert(negative_cycle);
+    assert(g.mst() == -4);
 
     int n = 20;
     g = graph<int>(n);
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         if (rand() % 2) {
             g.arc(rand() % n, rand() % n, rand() % 1000);
         } else {

@@ -45,7 +45,7 @@ struct seg_tree_lazy {
     void apply(size_t i, size_t d, const Update& u) {
         v[i] = u.apply(v[i], d);
         if (i < s)
-            lazy[i] = lazy[i].compose(u);
+            lazy[i] = u.compose(lazy[i]);
     }
 
     void push(size_t i) {
@@ -115,13 +115,13 @@ struct group::update {
     }
 
     update compose(const update& other) const {
-        if (k == kNoop || other.k == kSet) {
-            return other;
-        } else if (other.k == kNoop) {
+        if (other.k == kNoop || k == kSet) {
             return *this;
+        } else if (k == kNoop) {
+            return other;
         } else {
-            assert(other.k == kOperate);
-            return update(k, op(x, other.x));
+            assert(k == kOperate);
+            return update(other.k, op(other.x, x));
         }
     }
 };

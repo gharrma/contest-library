@@ -6,17 +6,21 @@
  * c := child (neighbor) of current node
  * w := edge weight
  *
- * Dijkstra:
- * - returns distances from node s to every other
+ * Dijkstra: ~ O(E log V)
+ * - returns distances from a source node s to every other
  * - negative edge weights not supported
  *
- * Bellman-Ford:
- * - returns distances from node s to every other
- * - detects negative cycles
+ * Bellman-Ford: ~ O(VE)
+ * - returns distances from a source node s to every other
+ * - supports negative edge weights
  *
- * Floyd-Warshall:
+ * Floyd-Warshall: O(V^3)
  * - returns distances between every pair of nodes
- * - negative cycles not supported
+ * - supports negative edge weights
+ *
+ * Johnson's Algorithm: ~ O(V^2 log V + VE)
+ * - returns distances between every pair of nodes
+ * - better than Floyd-Warshall for sparse graphs with negative edge weights
  *
  * Mst:
  * - uses Prim's algorithm to return the weight of the minimum spanning tree
@@ -40,8 +44,8 @@ struct graph {
     void arc (int i, int j, T w) { adj[i].emplace_back(j, w); }
     void edge(int i, int j, T w) { arc(i, j, w), arc(j, i, w); }
 
-    pair<vector<T>, vector<T>>
-    dijkstra(int s) {
+    pair<vector<T>, vector<int>>
+    dijkstra(int s) const {
         vector<T> dist(n, T(infty));
         vector<int> prev(n, -1);
         dist[s] = 0;
@@ -71,8 +75,8 @@ struct graph {
         return make_pair(dist, prev);
     }
 
-    pair<vector<T>, vector<T>>
-    bellman_ford(int s, bool& negative_cycle) {
+    pair<vector<T>, vector<int>>
+    bellman_ford(int s, bool& negative_cycle) const {
         negative_cycle = false;
         vector<T> dist(n, T(infty));
         vector<int> prev(n, -1);
@@ -80,10 +84,11 @@ struct graph {
         for (int i = 0; i < n - 1; ++i)
             for (int x = 0; x < n; ++x)
                 for (auto& p : adj[x])
-                    if (dist[p.first] > dist[x] + p.second) {
-                        dist[p.first] = dist[x] + p.second;
-                        prev[p.first] = x;
-                    }
+                    if (dist[x] < infty)
+                        if (dist[p.first] > dist[x] + p.second) {
+                            dist[p.first] = dist[x] + p.second;
+                            prev[p.first] = x;
+                        }
         for (int x = 0; x < n; ++x)
             for (auto& p : adj[x])
                 if (dist[p.first] > dist[x] + p.second)
@@ -92,7 +97,7 @@ struct graph {
     }
 
     pair<vector<vector<T>>, vector<vector<int>>>
-    floyd_warshall() {
+    floyd_warshall() const {
         vector<vector<T>> dist(n, vector<T>(n, T(infty)));
         vector<vector<int>> next(n, vector<int>(n, -1));
         for (int i = 0; i < n; ++i) {
@@ -106,15 +111,46 @@ struct graph {
         for (int k = 0; k < n; ++k)
             for (int i = 0; i < n; ++i)
                 for (int j = 0; j < n; ++j)
-                    if (dist[i][j] > dist[i][k] + dist[k][j]) {
-                        dist[i][j] = dist[i][k] + dist[k][j];
-                        next[i][j] = next[i][k];
-                    }
+                    if (dist[i][k] < infty && dist[k][j] < infty)
+                        if (dist[i][j] > dist[i][k] + dist[k][j]) {
+                            dist[i][j] = dist[i][k] + dist[k][j];
+                            next[i][j] = next[i][k];
+                        }
 
         return make_pair(dist, next);
     }
 
-    T mst() {
+    pair<vector<vector<T>>, vector<vector<int>>>
+    johnsons_algorithm(bool& negative_cycle) const {
+        negative_cycle = false;
+        vector<vector<T>> dist(n);
+        vector<vector<int>> prev(n);
+
+        graph<T> alt = *this;
+        alt.n += 1;
+        alt.adj.resize(alt.n);
+        for (int i = 0; i < n; ++i)
+            alt.arc(n, i, 0);
+        auto q_dist = alt.bellman_ford(n, negative_cycle).first;
+        if (negative_cycle)
+            return make_pair(dist, prev);
+
+        alt.n -= 1;
+        alt.adj.resize(alt.n);
+        for (int i = 0; i < n; ++i)
+            for (auto& p : alt.adj[i])
+                p.second += q_dist[i] - q_dist[p.first];
+
+        for (int s = 0; s < n; ++s)
+            tie(dist[s], prev[s]) = alt.dijkstra(s);
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < n; ++j)
+                if (dist[i][j] < infty)
+                    dist[i][j] -= q_dist[i] - q_dist[j];
+        return make_pair(dist, prev);
+    }
+
+    T mst() const {
         vector<bool> done(n);
         priority_queue<pair<T,int>,
                        vector<pair<T,int>>,
@@ -155,22 +191,37 @@ int main() {
     bool negative_cycle;
     g.bellman_ford(0, negative_cycle);
     assert(negative_cycle);
+    g.johnsons_algorithm(negative_cycle);
+    assert(negative_cycle);
     assert(g.mst() == -4);
 
-    int n = 20;
+    int n = 30;
     g = graph<int>(n);
-    for (int i = 0; i < 1000; ++i) {
-        if (rand() % 2) {
-            g.arc(rand() % n, rand() % n, rand() % 1000);
-        } else {
-            int s = rand() % n;
-            negative_cycle = false;
-            auto dij = g.dijkstra(s).first;
-            auto bf = g.bellman_ford(s, negative_cycle).first;
-            auto fw = g.floyd_warshall().first;
-            assert(!negative_cycle);
-            for (int i = 0; i < n; ++i)
-                assert(dij[i] == bf[i] && bf[i] == fw[s][i]);
+    for (bool negative_allowed : {false, true}) {
+        for (int i = 0; i < 1000; ++i) {
+            if (rand() % 2) {
+                int weight = rand() % 1000 - (negative_allowed ? 100 : 0);
+                g.arc(rand() % n, rand() % n, weight);
+            } else {
+                int s = rand() % n;
+                auto bf = g.bellman_ford(s, negative_cycle).first;
+                auto fw = g.floyd_warshall().first;
+                auto ja = g.johnsons_algorithm(negative_cycle).first;
+                if (negative_allowed) {
+                    if (negative_cycle) {
+                        g = graph<int>(n);
+                        continue;
+                    }
+                    for (int i = 0; i < n; ++i)
+                        for (auto dist : {fw[s][i], ja[s][i]})
+                            assert(dist == bf[i]);
+                } else {
+                    auto dij = g.dijkstra(s).first;
+                    for (int i = 0; i < n; ++i)
+                        for (auto dist : {bf[i], fw[s][i], ja[s][i]})
+                            assert(dist == dij[i]);
+                }
+            }
         }
     }
 

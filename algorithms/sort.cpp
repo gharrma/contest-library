@@ -29,9 +29,9 @@ void counting_sort(Iterator begin, Iterator end, size_t max) {
 }
 
 int main() {
-    int n = 1000;
+    int n = 1000, iter = 10000;
     vector<int> a(n), b(n);
-    for (int t = 0; t < 10000; ++t) {
+    for (int t = 0; t < iter; ++t) {
         for (int i = 0; i < n; ++i)
             a[i] = b[i] = rand() % n;
         sort(a.begin(), a.end());

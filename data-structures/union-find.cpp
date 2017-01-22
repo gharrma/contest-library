@@ -36,10 +36,6 @@ struct union_find {
             r[b]++;
         --c;
     }
-
-    size_t size(size_t i) {
-        return s[rep(i)];
-    }
 };
 
 int main() {

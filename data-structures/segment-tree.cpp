@@ -19,7 +19,7 @@ struct seg_tree {
     size_t s;
     vector<T> v;
 
-    seg_tree<Monoid>(size_t n) {
+    seg_tree(size_t n) {
         for (s = 1; s < n; )
             s <<= 1;
         v.resize(2*s, T(Monoid::id));

@@ -15,7 +15,7 @@ template <typename T>
 struct bit {
     vector<T> v;
 
-    bit<T>(size_t n): v(n+1) {}
+    bit(size_t n): v(n+1) {}
 
     void increase(size_t i, T t) {
         for (++i; i < v.size(); i += i & -i)

@@ -13,7 +13,7 @@ template <typename T>
 struct bit_2d {
     vector<vector<T>> v;
 
-    bit_2d<T>(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
+    bit_2d(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
 
     void increase(size_t x, size_t y, T t) {
         for (size_t i = x + 1; i < v.size(); i += i & -i)

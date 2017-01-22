@@ -36,7 +36,7 @@ struct seg_tree_lazy {
     vector<T> v;
     vector<Update> lazy;
 
-    seg_tree_lazy<Monoid>(size_t n) {
+    seg_tree_lazy(size_t n) {
         for (s = 1, h = 1; s < n; )
             s <<= 1, ++h;
         v.resize(2*s, T(Monoid::id));

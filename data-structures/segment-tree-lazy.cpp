@@ -31,22 +31,23 @@ using namespace std;
 template <typename Monoid>
 struct seg_tree_lazy {
     using T = typename Monoid::T;
-    using Update = typename Monoid::act;
+    using Act = typename Monoid::act;
+    Monoid m;
     size_t s, h;
     vector<T> v;
-    vector<Update> lazy;
+    vector<Act> lazy;
 
-    seg_tree_lazy(size_t n) {
+    seg_tree_lazy(size_t n, Monoid m = Monoid()): m(m) {
         for (s = 1, h = 1; s < n; )
             s <<= 1, ++h;
-        v.resize(2*s, T(Monoid::id));
+        v.resize(2*s, T(m.id));
         lazy.resize(s);
     }
 
-    void apply(size_t i, size_t d, const Update& u) {
-        v[i] = u.apply(v[i], d);
+    void apply(size_t i, size_t d, const Act& a) {
+        v[i] = a.apply(v[i], d);
         if (i < s)
-            lazy[i] = u.compose(lazy[i]);
+            lazy[i] = a.compose(lazy[i]);
     }
 
     void push(size_t i) {
@@ -55,7 +56,7 @@ struct seg_tree_lazy {
             if (!lazy[l].isNoop()) {
                 apply(2*l,   d-1, lazy[l]);
                 apply(2*l+1, d-1, lazy[l]);
-                lazy[l] = Update();
+                lazy[l] = Act();
             }
         }
     }
@@ -63,17 +64,17 @@ struct seg_tree_lazy {
     void pull(size_t i) {
         for (size_t d = 1; d <= h; ++d) {
             size_t l = i >> d;
-            T combined = Monoid::op(v[2*l], v[2*l+1]);
+            T combined = m.op(v[2*l], v[2*l+1]);
             v[l] = lazy[l].apply(combined, d);
         }
     }
 
-    void update(size_t i, size_t j, const Update& u) {
+    void update(size_t i, size_t j, const Act& a) {
         i += s, j += s;
         push(i), push(j); // Needed only if updates are not commutative.
         for (size_t l = i, r = j, d = 0; l <= r; l /= 2, r /= 2, ++d) {
-            if (l % 2 == 1) apply(l++, d, u);
-            if (r % 2 == 0) apply(r--, d, u);
+            if (l % 2 == 1) apply(l++, d, a);
+            if (r % 2 == 0) apply(r--, d, a);
         }
         pull(i), pull(j);
     }
@@ -81,12 +82,12 @@ struct seg_tree_lazy {
     T query(size_t i, size_t j) {
         i += s, j += s;
         push(i), push(j);
-        T l = Monoid::id, r = Monoid::id;
+        T l = m.id, r = m.id;
         for (; i <= j; i /= 2, j /= 2) {
-            if (i % 2 == 1) l = Monoid::op(l, v[i++]);
-            if (j % 2 == 0) r = Monoid::op(v[j--], r);
+            if (i % 2 == 1) l = m.op(l, v[i++]);
+            if (j % 2 == 0) r = m.op(v[j--], r);
         }
-        return Monoid::op(l, r);
+        return m.op(l, r);
     }
 };
 

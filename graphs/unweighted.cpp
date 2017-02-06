@@ -64,8 +64,8 @@ struct graph {
         vector<bool> seen(n);
         for (int i = 0; i < n; ++i) {
             if (!seen[i]) {
-                ++count;
                 seen[i] = true;
+                ++count;
                 dfsGray(i, [&](int x, int c) {
                     return seen[c] ? false : seen[c] = true;
                 });

@@ -24,7 +24,9 @@ struct suffix_array {
     vector<vector<int>> dp;
     vector<int> order;
 
-    suffix_array(Container v): v(v), n(distance(begin(v), end(v))), order(n) {
+    suffix_array(const Container v)
+        : v(v), n(distance(begin(v), end(v))), order(n)
+    {
         for (log = 0; 1 << log < n; ++log);
         dp.resize(log + 1, vector<int>(n));
         for (int i = 0; i < n; ++i)

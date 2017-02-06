@@ -20,21 +20,21 @@ using namespace std;
 template <typename Container>
 struct suffix_array {
     const Container v;
-    size_t n, log;
-    vector<vector<size_t>> dp;
-    vector<size_t> order;
+    int n, log;
+    vector<vector<int>> dp;
+    vector<int> order;
 
     suffix_array(Container v): v(v), n(distance(begin(v), end(v))), order(n) {
         for (log = 0; 1 << log < n; ++log);
-        dp.resize(log + 1, vector<size_t>(n));
-        for (size_t i = 0; i < n; ++i)
+        dp.resize(log + 1, vector<int>(n));
+        for (int i = 0; i < n; ++i)
             order[i] = i;
 
-        for (size_t pow = 0; pow <= log; ++pow) {
-            auto cmp  = [&] (size_t i, size_t j) {
+        for (int pow = 0; pow <= log; ++pow) {
+            auto cmp = [&](int i, int j) {
                 if (pow == 0)
                     return v[i] < v[j];
-                if (dp[pow-1][i] != dp[pow-1][j])
+                if (dp[pow - 1][i] != dp[pow - 1][j])
                     return dp[pow - 1][i] < dp[pow - 1][j];
                 auto step = 1 << (pow - 1);
                 if (i + step < n && j + step < n)
@@ -43,7 +43,7 @@ struct suffix_array {
             };
             sort(order.begin(), order.end(), cmp);
 
-            for (size_t i = 0; i < n; ++i) {
+            for (int i = 0; i < n; ++i) {
                 if (i == 0 || cmp(order[i-1], order[i])) {
                     dp[pow][order[i]] = i;
                 } else {
@@ -53,17 +53,17 @@ struct suffix_array {
         }
     }
 
-    size_t lcp(size_t i, size_t j) {
-        size_t ret = 0, pow = log, limit = min(n - i, n - j);
-        while (pow-- > 0 && i < n && j < n)
+    int lcp(int i, int j) {
+        int ret = 0;
+        for (int pow = log; pow >= 0 && i < n && j < n; --pow)
             if (dp[pow][i] == dp[pow][j])
                 ret += 1 << pow, i += 1 << pow, j += 1 << pow;
-        return min(ret, limit);
+        return min({ret, n-i, n-j});
     }
 
-    size_t lower_bound(const Container& key) {
+    int lower_bound(const Container& key) {
         int i = -1;
-        for (size_t step = 1u << log; step > 0; step >>= 1)
+        for (int step = 1 << log; step > 0; step >>= 1)
             if (i + step < n)
                 if (lexicographical_compare(
                         begin(v) + order[i + step], end(v),
@@ -73,7 +73,7 @@ struct suffix_array {
     }
 
     bool has_substr(const Container& key) {
-        size_t lb = lower_bound(key);
+        int lb = lower_bound(key);
         return distance(begin(key), end(key)) <= n - order[lb]
             && equal(begin(key), end(key), begin(v) + order[lb]);
     }
@@ -81,8 +81,8 @@ struct suffix_array {
 
 int main() {
     suffix_array<string> example("apple");
-    assert(example.dp.back() == vector<size_t>({0,4,3,2,1}));
-    assert(example.order == vector<size_t>({0,4,3,2,1}));
+    assert(example.dp.back() == vector<int>({0,4,3,2,1}));
+    assert(example.order == vector<int>({0,4,3,2,1}));
     assert(example.lower_bound("pla") == 3);
     assert(example.has_substr("ppl"));
     assert(!example.has_substr("b"));

@@ -47,7 +47,7 @@ struct graph {
 
     template <typename Black>
     void dfsBlack(int s, Black black) const {
-        vector<int> seen(n);
+        vector<bool> seen(n);
         seen[s] = true;
         dfs(s, black, [&](int x, int c) {
             return seen[c] ? false : seen[c] = true;
@@ -98,6 +98,26 @@ struct graph {
         graph g(n);
         dfsBlack(s, [&](int x, int c) { g.arc(x, c); });
         return g;
+    }
+
+    function<bool(int,int)> ancestor_predicate() const {
+        vector<int> push(n), pop(n);
+        int push_count = 0, pop_count = 0;
+        for (int i = 0; i < n; ++i) {
+            if (!push[i])
+                continue;
+            push[i] = ++push_count;
+            auto black = [&](int x, int c) { pop[c] = ++pop_count; };
+            auto gray  = [&](int x, int c) {
+                return push[c] ? false : push[c] = ++push_count;
+            };
+            dfs(i, black, gray);
+            pop[i] = ++pop_count;
+        }
+
+        return [=](int x, int c) {
+            return push[x] <= push[c] && pop[x] >= pop[c];
+        };
     }
 };
 

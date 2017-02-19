@@ -1,22 +1,18 @@
 /*
  * A graph data structure and various algorithms.
- *
  * n := number of nodes
+ * p := parent node
  * x := current node
- * c := child (neighbor) of current node
- * black := function to apply to elements in traversal order
- * gray := function to apply to elements at the frontier, returning true
- *         if an element should be explored.
- *
- * Cc: returns the number of connected components in the graph
- * Bipartite: returns whether the graph is bipartite; 2-colors graph if yes
+ * cc := connected components
  */
 #include <iostream>
 #include <vector>
 #include <stack>
-#include <queue>
+#include <unordered_map>
 #include <cassert>
 using namespace std;
+
+static const auto noop = [](int p, int x) {};
 
 struct graph {
     int n;
@@ -24,107 +20,97 @@ struct graph {
 
     graph(int n): n(n), adj(n) {}
 
-    vector<int>& operator[](size_t i) { return adj[i]; }
-
     void arc (int i, int j) { adj[i].emplace_back(j); }
     void edge(int i, int j) { arc(i, j), arc(j, i); }
 
-    template <typename Black, typename Gray>
-    void dfs(int s, Black black, Gray gray) const {
-        stack<pair<int,int>> q;
-        q.emplace(-1, s);
-        while (!q.empty()) {
-            int x, c;
-            tie(x, c) = q.top();
+    template <typename Pre, typename Post>
+    void dfs(int s, Pre pre, Post post) const;
+
+    int cc() const;
+
+    pair<bool, vector<bool>> bipartite() const;
+
+    graph rooted(int root) const;
+
+    vector<pair<int,int>> push_pop_order(int root) const;
+
+    // TODO: Implement lowest common ancestor predicate.
+};
+
+template <typename Pre, typename Post>
+void graph::dfs(int s, Pre pre, Post post) const {
+    unordered_map<int,bool> gray, black;
+    stack<pair<int,int>> q;
+    q.emplace(-1, s);
+    while (!q.empty()) {
+        int p, x;
+        tie(p, x) = q.top();
+        if (black[x]) {
             q.pop();
-            if (x != -1)
-                black(x, c);
-            for (auto cc : adj[c])
-                if (gray(c, cc))
-                    q.emplace(c, cc);
-        }
-    }
-
-    template <typename Black>
-    void dfsBlack(int s, Black black) const {
-        vector<bool> seen(n);
-        seen[s] = true;
-        dfs(s, black, [&](int x, int c) {
-            return seen[c] ? false : seen[c] = true;
-        });
-    }
-
-    template <typename Gray>
-    void dfsGray(int s, Gray gray) const {
-        return dfs(s, [](int x, int c) {}, gray);
-    }
-
-    int cc() const {
-        int count = 0;
-        vector<bool> seen(n);
-        for (int i = 0; i < n; ++i) {
-            if (!seen[i]) {
-                seen[i] = true;
-                ++count;
-                dfsGray(i, [&](int x, int c) {
-                    return seen[c] ? false : seen[c] = true;
-                });
+            continue;
+        } else if (gray[x]) {
+            black[x] = true;
+            q.pop();
+            post(p, x);
+        } else {
+            gray[x] = true;
+            pre(p, x);
+            for (auto c : adj[x]) {
+                if (!gray[c]) {
+                    q.emplace(x, c);
+                }
             }
         }
-        return count;
     }
+}
 
-    pair<bool, vector<bool>>
-    bipartite() const {
-        bool ok = true;
-        vector<bool> color(n);
-        vector<bool> seen(n);
-        for (int i = 0; i < n; ++i) {
-            dfsGray(i, [&](int x, int c) {
-                if (seen[c]) {
-                    ok &= color[c] != color[x];
-                    return false;
-                } else {
-                    seen[c] = true;
-                    color[c] = !color[x];
-                    return ok;
-                }
-            });
+int graph::cc() const {
+    int count = 0;
+    vector<bool> seen(n);
+    for (int i = 0; i < n; ++i) {
+        if (!seen[i]) {
+            ++count;
+            dfs(i, noop, [&](int p, int x) { seen[x] = true; });
         }
-        return make_pair(ok, color);
     }
+    return count;
+}
 
-    graph rooted(int s) const {
-        graph g(n);
-        dfsBlack(s, [&](int x, int c) { g.arc(x, c); });
-        return g;
-    }
+graph graph::rooted(int root) const {
+    graph g(n);
+    dfs(root, noop, [&](int p, int x) { if (p != -1) g.arc(p, x); });
+    return g;
+}
 
-    function<bool(int,int)> ancestor_predicate() const {
-        vector<int> push(n), pop(n);
-        int push_count = 0, pop_count = 0;
-        for (int i = 0; i < n; ++i) {
-            if (!push[i])
-                continue;
-            push[i] = ++push_count;
-            auto black = [&](int x, int c) { pop[c] = ++pop_count; };
-            auto gray  = [&](int x, int c) {
-                return push[c] ? false : push[c] = ++push_count;
-            };
-            dfs(i, black, gray);
-            pop[i] = ++pop_count;
-        }
+pair<bool, vector<bool>> graph::bipartite() const {
+    bool ok = true;
+    vector<bool> seen(n), color(n);
+    auto pre = [&](int p, int x) {
+        seen[x] = true;
+        color[x] = p == -1 ? false : !color[p];
+    };
+    for (int i = 0; i < n; ++i)
+        if (!seen[i])
+            dfs(i, pre, noop);
+    for (int i = 0; i < n; ++i)
+        for (auto c : adj[i])
+            ok &= color[i] != color[c];
+    return make_pair(ok, color);
+}
 
-        return [=](int x, int c) {
-            return push[x] <= push[c] && pop[x] >= pop[c];
-        };
-    }
-};
+vector<pair<int,int>> graph::push_pop_order(int root) const {
+    vector<pair<int,int>> order(n);
+    int counter = 0;
+    auto pre  = [&](int p, int x) { order[x].first  = counter++; };
+    auto post = [&](int p, int x) { order[x].second = counter++; };
+    dfs(root, pre, post);
+    return order;
+}
 
 int main() {
     graph g(7);
     g.edge(0, 1);
-    assert(g[0][0] == 1 && g[1][0] == 0);
+    assert(g.adj[0][0] == 1 && g.adj[1][0] == 0);
     g.edge(0, 3);
     g.edge(1, 2);
     g.edge(2, 3);
@@ -135,6 +121,9 @@ int main() {
     assert(g.bipartite().first);
     g.edge(3, 5);
     assert(!g.bipartite().first);
+
+    // graph::push_pop_order tested on HackerRank, "The Story of a Tree."
+
     cout << "All tests passed" << endl;
     return 0;
 }

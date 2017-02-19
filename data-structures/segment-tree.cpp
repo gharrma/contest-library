@@ -17,23 +17,30 @@ template <typename Monoid>
 struct seg_tree {
     using T = typename Monoid::T;
     Monoid m;
-    size_t s;
+    int s;
     vector<T> v;
 
-    seg_tree(size_t n, Monoid m = Monoid()): m(m) {
+    seg_tree(int n, Monoid m = Monoid()): m(m) {
         for (s = 1; s < n; )
             s <<= 1;
         v.resize(2*s, T(m.id));
     }
 
-    void update(size_t i, T t) {
+    template <typename Iterator>
+    void set_leaves(Iterator begin, Iterator end) {
+        copy(begin, end, v.begin() + s);
+        for (int i = s - 1; i >= 0; --i)
+            v[i] = m.op(v[2*i], v[2*i+1]);
+    }
+
+    void update(int i, T t) {
         i += s;
         v[i] = t;
         for (i /= 2; i > 0; i /= 2)
             v[i] = m.op(v[2*i], v[2*i+1]);
     }
 
-    T query(size_t i, size_t j) {
+    T query(int i, int j) {
         i += s, j += s;
         T l = m.id, r = m.id;
         for (; i <= j; i /= 2, j /= 2) {
@@ -60,7 +67,7 @@ int main() {
             v[i] = val;
             s.update(i, val);
         } else {
-            size_t l = rand() % n, r = rand() % n;
+            int l = rand() % n, r = rand() % n;
             if (r < l) swap(l, r);
             int max_elem = *max_element(v.begin() + l, v.begin() + r + 1);
             assert(s.query(l, r) == max_elem);

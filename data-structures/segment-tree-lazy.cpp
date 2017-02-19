@@ -44,6 +44,13 @@ struct seg_tree_lazy {
         lazy.resize(s);
     }
 
+    template <typename Iterator>
+    void set_leaves(Iterator begin, Iterator end) {
+        copy(begin, end, v.begin() + s);
+        for (int i = s - 1; i >= 0; --i)
+            v[i] = m.op(v[2*i], v[2*i+1]);
+    }
+
     void apply(size_t i, size_t d, const Act& a) {
         v[i] = a.apply(v[i], d);
         if (i < s)

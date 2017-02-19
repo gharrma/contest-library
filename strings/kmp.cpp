@@ -29,12 +29,13 @@ struct kmp {
         }
     }
 
-    int find(const Container& haystack) const {
+    vector<int> find(const Container& haystack) const {
+        vector<int> res;
         int len = distance(begin(haystack), end(haystack));
         for (int m = 0, i = 0; m + i < len; ) {
             if (needle[i] == haystack[m + i]) {
                 if (i == n - 1)
-                    return m;
+                    res.emplace_back(m);
                 ++i;
             } else if (succ[i] != -1) {
                 m = m + i - succ[i];
@@ -44,11 +45,11 @@ struct kmp {
                 i = 0;
             }
         }
-        return n;
+        return res;
     }
 
     bool in(const Container& haystack) const {
-        return find(haystack) < n;
+        return !find(haystack).empty();
     }
 };
 

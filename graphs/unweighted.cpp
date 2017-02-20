@@ -4,6 +4,7 @@
  * p := parent node
  * x := current node
  * cc := connected components
+ * lca := lowest common ancestor
  */
 #include <iostream>
 #include <vector>
@@ -52,7 +53,6 @@ void graph::dfs(int s, Pre pre, Post post) const {
         tie(p, x) = q.top();
         if (black[x]) {
             q.pop();
-            continue;
         } else if (gray[x]) {
             black[x] = true;
             q.pop();

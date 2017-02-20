@@ -25,12 +25,6 @@ struct graph {
     template <typename Pre, typename Post>
     void dfs(int s, Pre pre, Post post) const;
 
-    template <typename Pre>
-    void dfsPre(int s, Pre pre) const { dfs(s, pre, [](int p, int x) {}); }
-
-    template <typename Post>
-    void dfsPost(int s, Post post) const { dfs(s, [](int p, int x) {}, post); }
-
     template <typename F>
     void bfs(int s, F f) const;
 

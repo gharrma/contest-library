@@ -12,8 +12,6 @@
 #include <cassert>
 using namespace std;
 
-static const auto noop = [](int p, int x) {};
-
 struct graph {
     int n;
     vector<vector<int>> adj;
@@ -26,6 +24,12 @@ struct graph {
     template <typename Pre, typename Post>
     void dfs(int s, Pre pre, Post post) const;
 
+    template <typename Pre>
+    void dfsPre(int s, Pre pre) const { dfs(s, pre, [](int p, int x) {}); }
+
+    template <typename Post>
+    void dfsPost(int s, Post post) const { dfs(s, [](int p, int x) {}, post); }
+
     int cc() const;
 
     pair<bool, vector<bool>> bipartite() const;
@@ -34,7 +38,7 @@ struct graph {
 
     vector<pair<int,int>> push_pop_order(int root) const;
 
-    // TODO: Implement lowest common ancestor predicate.
+    function<bool(int,int)> lca(int root) const;
 };
 
 template <typename Pre, typename Post>
@@ -70,7 +74,9 @@ int graph::cc() const {
     for (int i = 0; i < n; ++i) {
         if (!seen[i]) {
             ++count;
-            dfs(i, noop, [&](int p, int x) { seen[x] = true; });
+            dfsPost(i, [&](int p, int x) {
+                seen[x] = true;
+            });
         }
     }
     return count;
@@ -78,7 +84,9 @@ int graph::cc() const {
 
 graph graph::rooted(int root) const {
     graph g(n);
-    dfs(root, noop, [&](int p, int x) { if (p != -1) g.arc(p, x); });
+    dfsPost(root, [&](int p, int x) {
+        if (p != -1) g.arc(p, x);
+    });
     return g;
 }
 
@@ -91,7 +99,7 @@ pair<bool, vector<bool>> graph::bipartite() const {
     };
     for (int i = 0; i < n; ++i)
         if (!seen[i])
-            dfs(i, pre, noop);
+            dfsPre(i, pre);
     for (int i = 0; i < n; ++i)
         for (auto c : adj[i])
             ok &= color[i] != color[c];
@@ -105,6 +113,39 @@ vector<pair<int,int>> graph::push_pop_order(int root) const {
     auto post = [&](int p, int x) { order[x].second = counter++; };
     dfs(root, pre, post);
     return order;
+}
+
+function<bool(int,int)> graph::lca(int root) const {
+    int log = 0;
+    while (1 << log < n)
+        ++log;
+
+    // dp[k][i] := (2^k)th parent of node i, or -1 if none.
+    vector<vector<int>> dp(log + 1, vector<int>(n, -1));
+    dfsPost(root, [&](int p, int x) {
+        dp[0][x] = p;
+    });
+    for (int k = 1; k <= log; ++k)
+        for (int i = 0; i < n; ++i)
+            if (dp[k-1][i] != -1)
+                dp[k][i] = dp[k-1][dp[k-1][i]];
+
+    vector<int> dist(n);
+    dfsPre(root, [&](int p, int x) {
+        dist[x] = p == -1 ? 0 : dist[p] + 1;
+    });
+
+    return [=](int a, int b) {
+        if (dist[a] < dist[b])
+            swap(a, b);
+        for (int k = log; k >= 0; --k)
+            if (dp[k][a] != -1 && dist[dp[k][a]] >= dist[b])
+                a = dp[k][a];
+        for (int k = log; k >= 0; --k)
+            if (dp[k][a] != dp[k][b])
+                a = dp[k][a], b = dp[k][b];
+        return dp[0][a];
+    };
 }
 
 int main() {

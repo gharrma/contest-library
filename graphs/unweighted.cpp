@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <queue>
 #include <unordered_map>
 #include <cassert>
 using namespace std;
@@ -30,6 +31,12 @@ struct graph {
     template <typename Post>
     void dfsPost(int s, Post post) const { dfs(s, [](int p, int x) {}, post); }
 
+    template <typename F>
+    void bfs(int s, F f) const;
+
+    template <typename F>
+    void euler_tour(int s, F f) const;
+
     int cc() const;
 
     pair<bool, vector<bool>> bipartite() const;
@@ -38,7 +45,7 @@ struct graph {
 
     vector<pair<int,int>> push_pop_order(int root) const;
 
-    function<bool(int,int)> lca(int root) const;
+    function<int(int,int)> lca(int root) const;
 };
 
 template <typename Pre, typename Post>
@@ -68,15 +75,39 @@ void graph::dfs(int s, Pre pre, Post post) const {
     }
 }
 
+template <typename F>
+void graph::bfs(int s, F f) const {
+    unordered_map<int,bool> seen;
+    queue<pair<int,int>> q;
+    q.emplace(-1, s);
+    while (!q.empty()) {
+        int p, x;
+        tie(p, x) = q.front();
+        q.pop();
+        f(p, x);
+        for (auto c : adj[x]) {
+            if (!seen[c]) {
+                seen[c] = true;
+                q.emplace(x, c);
+            }
+        }
+    }
+}
+
+template <typename F>
+void graph::euler_tour(int s, F f) const {
+    auto pre  = [&](int p, int x) { if (p != -1) f(p); };
+    auto post = [&](int p, int x) { f(x); };
+    dfs(s, pre, post);
+}
+
 int graph::cc() const {
     int count = 0;
     vector<bool> seen(n);
     for (int i = 0; i < n; ++i) {
         if (!seen[i]) {
             ++count;
-            dfsPost(i, [&](int p, int x) {
-                seen[x] = true;
-            });
+            bfs(i, [&](int p, int x) { seen[x] = true; });
         }
     }
     return count;
@@ -84,9 +115,7 @@ int graph::cc() const {
 
 graph graph::rooted(int root) const {
     graph g(n);
-    dfsPost(root, [&](int p, int x) {
-        if (p != -1) g.arc(p, x);
-    });
+    bfs(root, [&](int p, int x) { if (p != -1) g.arc(p, x); });
     return g;
 }
 
@@ -99,7 +128,7 @@ pair<bool, vector<bool>> graph::bipartite() const {
     };
     for (int i = 0; i < n; ++i)
         if (!seen[i])
-            dfsPre(i, pre);
+            bfs(i, pre);
     for (int i = 0; i < n; ++i)
         for (auto c : adj[i])
             ok &= color[i] != color[c];
@@ -115,14 +144,14 @@ vector<pair<int,int>> graph::push_pop_order(int root) const {
     return order;
 }
 
-function<bool(int,int)> graph::lca(int root) const {
+function<int(int,int)> graph::lca(int root) const {
     int log = 0;
     while (1 << log < n)
         ++log;
 
     // dp[k][i] := (2^k)th parent of node i, or -1 if none.
     vector<vector<int>> dp(log + 1, vector<int>(n, -1));
-    dfsPost(root, [&](int p, int x) {
+    bfs(root, [&](int p, int x) {
         dp[0][x] = p;
     });
     for (int k = 1; k <= log; ++k)
@@ -131,7 +160,7 @@ function<bool(int,int)> graph::lca(int root) const {
                 dp[k][i] = dp[k-1][dp[k-1][i]];
 
     vector<int> dist(n);
-    dfsPre(root, [&](int p, int x) {
+    bfs(root, [&](int p, int x) {
         dist[x] = p == -1 ? 0 : dist[p] + 1;
     });
 

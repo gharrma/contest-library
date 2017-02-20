@@ -116,13 +116,13 @@ graph graph::rooted(int root) const {
 pair<bool, vector<bool>> graph::bipartite() const {
     bool ok = true;
     vector<bool> seen(n), color(n);
-    auto pre = [&](int p, int x) {
+    auto mark = [&](int p, int x) {
         seen[x] = true;
         color[x] = p == -1 ? false : !color[p];
     };
     for (int i = 0; i < n; ++i)
         if (!seen[i])
-            bfs(i, pre);
+            bfs(i, mark);
     for (int i = 0; i < n; ++i)
         for (auto c : adj[i])
             ok &= color[i] != color[c];

@@ -74,6 +74,7 @@ void graph::bfs(int s, F f) const {
     unordered_map<int,bool> seen;
     queue<pair<int,int>> q;
     q.emplace(-1, s);
+    seen[s] = true;
     while (!q.empty()) {
         int p, x;
         tie(p, x) = q.front();

@@ -9,23 +9,18 @@
 using namespace std;
 
 template <typename Iterator, typename Mapping>
-void counting_sort(Iterator begin, Iterator end, size_t max, Mapping f) {
-    vector<size_t> count(max + 1);
-    for (auto it = begin; it != end; ++it)
-        ++count[f(*it) + 1];
-    for (size_t i = 1; i < max; ++i)
-        count[i] += count[i-1];
-    vector<typename Iterator::value_type> sorted(distance(begin, end));
-    for (auto it = begin; it != end; ++it)
-        sorted[count[f(*it)]++] = *it;
-    for (auto val : sorted)
-        *(begin++) = val;
-}
-
-template <typename Iterator>
-void counting_sort(Iterator begin, Iterator end, size_t max) {
+void counting_sort(Iterator begin, Iterator end, int max, Mapping f) {
     using T = typename Iterator::value_type;
-    return counting_sort(begin, end, max, [] (T n) -> size_t { return n; });
+    vector<int> pos(max+1);
+    for (auto it = begin; it != end; ++it)
+        ++pos[f(*it)+1];
+    for (int i = 1; i < max; ++i)
+        pos[i] += pos[i-1];
+    vector<T> sorted(distance(begin, end));
+    for (auto it = begin; it != end; ++it)
+        sorted[pos[f(*it)]++] = move(*it);
+    for (auto& val : sorted)
+        *(begin++) = move(val);
 }
 
 int main() {
@@ -35,7 +30,9 @@ int main() {
         for (int i = 0; i < n; ++i)
             a[i] = b[i] = rand() % n;
         sort(a.begin(), a.end());
-        counting_sort(b.begin(), b.end(), n);
+        counting_sort(b.begin(), b.end(), n, [] (int n) {
+            return n;
+        });
         assert(a == b);
     }
     cout << "All tests passed" << endl;

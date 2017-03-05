@@ -23,6 +23,8 @@ struct graph {
     void arc (int i, int j) { adj[i].emplace_back(j); }
     void edge(int i, int j) { arc(i, j), arc(j, i); }
 
+    int append();
+
     template <typename Pre, typename Post>
     void dfs(int s, Pre pre, Post post) const;
 
@@ -42,6 +44,11 @@ struct graph {
 
     function<int(int,int)> lca(int root) const;
 };
+
+int graph::append() {
+    adj.resize(n + 1);
+    return n++;
+}
 
 template <typename Pre, typename Post>
 void graph::dfs(int s, Pre pre, Post post) const {

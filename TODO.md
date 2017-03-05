@@ -7,3 +7,5 @@ TODO
 - add better tests for algorithms
 - A* search
 - meet-in-the-middle search
+- trie
+- MSD sort (esp. for strings)

@@ -5,5 +5,6 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-g++ -std=c++11 -O2 -Wall "$1" -o "${1%.cpp}" && time ./"${1%.cpp}"
-rm -f "${1%.cpp}"
+g++ -std=c++11 -O2 -Wall "$1" -o "${1%.cpp}" \
+    && time ./"${1%.cpp}" \
+    && rm -f "${1%.cpp}"

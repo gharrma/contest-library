@@ -13,23 +13,23 @@ template <typename T>
 struct bit_2d {
     vector<vector<T>> v;
 
-    bit_2d(size_t x, size_t y): v(x+1, vector<T>(y+1)) {}
+    bit_2d(int x, int y): v(x+1, vector<T>(y+1)) {}
 
-    void increase(size_t x, size_t y, T t) {
-        for (size_t i = x + 1; i < v.size(); i += i & -i)
-            for (size_t j = y + 1; j < v[i].size(); j += j & -j)
+    void increase(int x, int y, T t) {
+        for (int i = x + 1; i < v.size(); i += i & -i)
+            for (int j = y + 1; j < v[i].size(); j += j & -j)
                 v[i][j] += t;
     }
 
-    T prefix(size_t x, size_t y) {
+    T prefix(int x, int y) {
         T sum = 0;
-        for (size_t i = x + 1; i > 0; i -= i & -i)
-            for (size_t j = y + 1; j > 0; j -= j & -j)
+        for (int i = x + 1; i > 0; i -= i & -i)
+            for (int j = y + 1; j > 0; j -= j & -j)
                 sum += v[i][j];
         return sum;
     }
 
-    T range(size_t x1, size_t y1, size_t x2, size_t y2) {
+    T range(int x1, int y1, int x2, int y2) {
         if (x2 < x1 || y2 < y1)
             return 0;
         return prefix(x2, y2) - prefix(x2, y1-1)
@@ -47,10 +47,14 @@ int main() {
             v[x][y] += val;
             b.increase(x, y, val);
         } else {
-            int x1 = rand() % n, y1 = rand() % n;
-            int x2 = rand() % n, y2 = rand() % n;
-            if (x2 < x1) swap(x1, x2);
-            if (y2 < y1) swap(y1, y2);
+            int x1 = rand() % n;
+            int y1 = rand() % n;
+            int x2 = rand() % n;
+            int y2 = rand() % n;
+            if (x2 < x1)
+                swap(x1, x2);
+            if (y2 < y1)
+                swap(y1, y2);
             int sum = 0;
             for (int i = x1; i <= x2; ++i)
                 for (int j = y1; j <= y2; ++j)

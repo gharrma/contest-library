@@ -15,26 +15,27 @@ template <typename T>
 struct bit {
     vector<T> v;
 
-    bit(size_t n): v(n+1) {}
+    bit(int n): v(n+1) {}
 
-    void increase(size_t i, T t) {
-        for (++i; i < v.size(); i += i & -i)
+    void increase(int i, T t) {
+        for (++i; i < v.size(); i += i & -i) {
             v[i] += t;
+        }
     }
 
-    T prefix(size_t i) {
+    T prefix(int i) {
         T sum = 0;
         for (++i; i > 0; i -= i & -i)
             sum += v[i];
         return sum;
     }
 
-    T range(size_t l, size_t r) {
-        return r < l ? 0 : prefix(r) - prefix(l-1);
+    T range(int l, int r) {
+        return l <= r ? prefix(r) - prefix(l-1) : 0;
     }
 
-    size_t lower_bound(T x) {
-        size_t i = 0, mask = 1;
+    int lower_bound(T x) {
+        int i = 0, mask = 1;
         while (mask < v.size())
             mask <<= 1;
         for (; mask > 0; mask >>= 1)
@@ -57,8 +58,10 @@ int main() {
             b.increase(i, val);
             total_val += val;
         } else if (r == 1) {
-            size_t l = rand() % n, r = rand() % n;
-            if (r < l) swap(l, r);
+            int l = rand() % n;
+            int r = rand() % n;
+            if (r < l)
+                swap(l, r);
             int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
             assert(b.range(l, r) == sum);
         } else {

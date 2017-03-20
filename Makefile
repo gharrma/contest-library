@@ -1,12 +1,12 @@
 TOPICS = algorithms data-structures graphs math strings
 SRC = $(shell find $(TOPICS) template.cpp -name "*.cpp")
-BIN = $(SRC:%.cpp=%.binary)
-TEST = $(SRC:%.cpp=%.test)
-TIME = $(SRC:%.cpp=%.time)
+BIN = $(SRC:%.cpp=out/%.binary)
+TEST = $(SRC:%.cpp=out/%.test)
+TIME = $(SRC:%.cpp=out/%.time)
 
 compile: $(BIN)
 
-%.binary: %.cpp
+out/%.binary: %.cpp
 	@echo "Compiling $*"
 	@mkdir -p $(dir $@)
 	@g++ -std=c++11 -Wall -O2 -o $@ $<

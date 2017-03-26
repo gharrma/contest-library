@@ -9,3 +9,4 @@ TODO
 - meet-in-the-middle search
 - trie
 - MSD sort (esp. for strings)
+- RMQ (in constant time)

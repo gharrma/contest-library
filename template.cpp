@@ -23,7 +23,7 @@ using ll = long long;
 #define pb emplace_back
 
 int main() {
-    ios_base::sync_with_stdio(false);
+    ios::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
     cout << fixed << setprecision(6);
     return 0;

@@ -1,5 +1,8 @@
 /*
- * Bipartite matching.
+ * Bipartite matching, O(VE).
+ * Nodes on both sides are 0-indexed.
+ * a := number of left nodes
+ * b := number of right nodes
  */
 #include <iostream>
 #include <algorithm>
@@ -25,6 +28,7 @@ struct graph {
             return false;
         visit[n] = run;
         for (int c : adj[n]) {
+            // Can optimize by splitting into two loops.
             if (match[c] == -1 || augment(match[c], run)) {
                 match[n] = c, match[c] = n;
                 return true;

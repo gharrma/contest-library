@@ -12,14 +12,20 @@
 using namespace std;
 
 template <typename T>
-struct bit {
+struct bit_range {
     vector<T> v;
 
-    bit(int n): v(n+1) {}
+    bit_range(int n): v(n+1) {}
 
-    void increase(int a, int b, T t) {
-        increase(a, t);
-        increase(b+1, -t);
+    void update(int i, T t) {
+        for (++i; i < v.size(); i += i & -i) {
+            v[i] += t;
+        }
+    }
+
+    void update(int a, int b, T t) {
+        update(a, t);
+        update(b+1, -t);
     }
 
     T query(int i) {
@@ -28,19 +34,12 @@ struct bit {
             sum += v[i];
         return sum;
     }
-
-private:
-    void increase(int i, T t) {
-        for (++i; i < v.size(); i += i & -i) {
-            v[i] += t;
-        }
-    }
 };
 
 int main() {
     int n = 100;
     vector<int> v(n);
-    bit<int> b(n);
+    bit_range<int> b(n);
     for (int t = 0; t < 1000000; ++t) {
         int r = rand() % 2;
         if (r == 0) {
@@ -49,7 +48,7 @@ int main() {
                 swap(l, r);
             for (int i = l; i <= r; ++i)
                 v[i] += val;
-            b.increase(l, r, val);
+            b.update(l, r, val);
         } else {
             int i = rand() % n;
             assert(b.query(i) == v[i]);

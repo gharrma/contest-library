@@ -15,13 +15,13 @@ struct bit_2d {
 
     bit_2d(int x, int y): v(x+1, vector<T>(y+1)) {}
 
-    void increase(int x, int y, T t) {
+    void update(int x, int y, T t) {
         for (int i = x + 1; i < v.size(); i += i & -i)
             for (int j = y + 1; j < v[i].size(); j += j & -j)
                 v[i][j] += t;
     }
 
-    T prefix(int x, int y) {
+    T query(int x, int y) {
         T sum = 0;
         for (int i = x + 1; i > 0; i -= i & -i)
             for (int j = y + 1; j > 0; j -= j & -j)
@@ -29,11 +29,11 @@ struct bit_2d {
         return sum;
     }
 
-    T range(int x1, int y1, int x2, int y2) {
+    T query(int x1, int y1, int x2, int y2) {
         if (x2 < x1 || y2 < y1)
             return 0;
-        return prefix(x2, y2) - prefix(x2, y1-1)
-                              - prefix(x1-1, y2) + prefix(x1-1, y1-1);
+        return query(x2, y2) - query(x2, y1-1)
+                             - query(x1-1, y2) + query(x1-1, y1-1);
     }
 };
 
@@ -45,7 +45,7 @@ int main() {
         if (rand() % 2) {
             int x = rand() % n, y = rand() % n, val = rand() % 100;
             v[x][y] += val;
-            b.increase(x, y, val);
+            b.update(x, y, val);
         } else {
             int x1 = rand() % n;
             int y1 = rand() % n;
@@ -59,7 +59,7 @@ int main() {
             for (int i = x1; i <= x2; ++i)
                 for (int j = y1; j <= y2; ++j)
                     sum += v[i][j];
-            assert(b.range(x1, y1, x2, y2) == sum);
+            assert(b.query(x1, y1, x2, y2) == sum);
         }
     }
     cout << "All tests passed" << endl;

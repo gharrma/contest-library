@@ -17,30 +17,30 @@ struct bit {
 
     bit(int n): v(n+1) {}
 
-    void increase(int i, T t) {
+    void update(int i, T t) {
         for (++i; i < v.size(); i += i & -i) {
             v[i] += t;
         }
     }
 
-    T prefix(int i) {
+    T query(int i) {
         T sum = 0;
         for (++i; i > 0; i -= i & -i)
             sum += v[i];
         return sum;
     }
 
-    T range(int l, int r) {
-        return l <= r ? prefix(r) - prefix(l-1) : 0;
+    T query(int l, int r) {
+        return l <= r ? query(r) - query(l-1) : 0;
     }
 
     int lower_bound(T x) {
-        int i = 0, mask = 1;
-        while (mask < v.size())
-            mask <<= 1;
-        for (; mask > 0; mask >>= 1)
-            if (i + mask < v.size() && v[i + mask] < x)
-                i += mask, x -= v[i];
+        int i = 0, step = 1;
+        while (step < v.size())
+            step <<= 1;
+        for (; step > 0; step >>= 1)
+            if (i + step < v.size() && v[i + step] < x)
+                i += step, x -= v[i];
         return i;
     }
 };
@@ -55,7 +55,7 @@ int main() {
         if (r == 0) {
             int i = rand() % n, val = rand() % 100;
             v[i] += val;
-            b.increase(i, val);
+            b.update(i, val);
             total_val += val;
         } else if (r == 1) {
             int l = rand() % n;
@@ -63,7 +63,7 @@ int main() {
             if (r < l)
                 swap(l, r);
             int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
-            assert(b.range(l, r) == sum);
+            assert(b.query(l, r) == sum);
         } else {
             vector<int> p(n);
             p[0] = v[0];

@@ -12,19 +12,20 @@
 using namespace std;
 
 struct union_find {
-    vector<size_t> p, s, r;
-    size_t c;
+    vector<int> p, s, r;
+    int c;
 
-    union_find(size_t n): p(n), s(n, 1), r(n), c(n) {
-        for (size_t i = 0; i < n; ++i)
+    union_find(int n): p(n), s(n, 1), r(n), c(n) {
+        for (int i = 0; i < n; ++i) {
             p[i] = i;
+        }
     }
 
-    size_t rep(size_t i) {
+    int rep(int i) {
         return p[i] == i ? i : p[i] = rep(p[i]);
     }
 
-    void merge(size_t a, size_t b) {
+    void merge(int a, int b) {
         a = rep(a), b = rep(b);
         if (a == b)
             return;
@@ -32,8 +33,8 @@ struct union_find {
             swap(a, b);
         p[a] = b;
         s[b] += s[a];
-        if (r[b] == r[a])
-            r[b]++;
+        if (r[a] == r[b])
+            ++r[b];
         --c;
     }
 };

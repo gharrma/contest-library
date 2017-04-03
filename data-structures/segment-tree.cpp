@@ -26,18 +26,20 @@ struct seg_tree {
         v.resize(2*s, T(m.id));
     }
 
-    template <typename Iterator>
-    void set_leaves(Iterator begin, Iterator end) {
+    template <typename InputIt>
+    void set_leaves(InputIt begin, InputIt end) {
         copy(begin, end, v.begin() + s);
-        for (int i = s - 1; i >= 0; --i)
+        for (int i = s - 1; i >= 0; --i) {
             v[i] = m.op(v[2*i], v[2*i+1]);
+        }
     }
 
     void update(int i, T t) {
         i += s;
         v[i] = t;
-        for (i /= 2; i > 0; i /= 2)
+        for (i /= 2; i > 0; i /= 2) {
             v[i] = m.op(v[2*i], v[2*i+1]);
+        }
     }
 
     T query(int i, int j) {
@@ -68,7 +70,8 @@ int main() {
             s.update(i, val);
         } else {
             int l = rand() % n, r = rand() % n;
-            if (r < l) swap(l, r);
+            if (r < l)
+                swap(l, r);
             int max_elem = *max_element(v.begin() + l, v.begin() + r + 1);
             assert(s.query(l, r) == max_elem);
         }

@@ -1,5 +1,6 @@
 /*
  * A graph data structure and various algorithms.
+ * All traversals are non-recursive.
  * n := number of nodes
  * p := parent node
  * x := current node
@@ -23,8 +24,6 @@ struct graph {
     void arc (int i, int j) { adj[i].emplace_back(j); }
     void edge(int i, int j) { arc(i, j), arc(j, i); }
 
-    int append();
-
     template <typename Pre, typename Post>
     void dfs(int s, Pre pre, Post post) const;
 
@@ -38,17 +37,12 @@ struct graph {
 
     pair<bool, vector<bool>> bipartite() const;
 
-    graph rooted(int root) const;
+    graph dfs_tree(int root) const;
 
     vector<pair<int,int>> push_pop_order(int root) const;
 
     function<int(int,int)> lca(int root) const;
 };
-
-int graph::append() {
-    adj.resize(n + 1);
-    return n++;
-}
 
 template <typename Pre, typename Post>
 void graph::dfs(int s, Pre pre, Post post) const {
@@ -106,23 +100,20 @@ void graph::euler_tour(int s, F f) const {
 int graph::cc() const {
     int count = 0;
     vector<bool> seen(n);
-    for (int i = 0; i < n; ++i) {
-        if (!seen[i]) {
-            ++count;
-            bfs(i, [&](int p, int x) { seen[x] = true; });
-        }
-    }
+    for (int i = 0; i < n; ++i)
+        if (!seen[i])
+            ++count, bfs(i, [&](int p, int x) { seen[x] = true; });
     return count;
 }
 
-graph graph::rooted(int root) const {
+graph graph::dfs_tree(int root) const {
     graph g(n);
-    bfs(root, [&](int p, int x) { if (p != -1) g.arc(p, x); });
+    auto noop = [](int p, int x) {};
+    dfs(root, noop, [&](int p, int x) { if (p != -1) g.arc(p, x); });
     return g;
 }
 
 pair<bool, vector<bool>> graph::bipartite() const {
-    bool ok = true;
     vector<bool> seen(n), color(n);
     auto mark = [&](int p, int x) {
         seen[x] = true;
@@ -131,6 +122,7 @@ pair<bool, vector<bool>> graph::bipartite() const {
     for (int i = 0; i < n; ++i)
         if (!seen[i])
             bfs(i, mark);
+    bool ok = true;
     for (int i = 0; i < n; ++i)
         for (auto c : adj[i])
             ok &= color[i] != color[c];

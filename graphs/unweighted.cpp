@@ -11,6 +11,7 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <algorithm>
 #include <unordered_map>
 #include <cassert>
 using namespace std;
@@ -36,6 +37,8 @@ struct graph {
     int cc() const;
 
     pair<bool, vector<bool>> bipartite() const;
+
+    vector<int> articulation_points() const;
 
     graph dfs_tree(int root) const;
 
@@ -129,6 +132,52 @@ pair<bool, vector<bool>> graph::bipartite() const {
     return make_pair(ok, color);
 }
 
+vector<int> graph::articulation_points() const {
+    // To find bridges, must also check for cliques of size 2.
+    vector<int> parent(n), dist(n), low(n);
+    vector<int> points;
+
+    auto pre = [&](int p, int x) {
+        parent[x] = p;
+        low[x] = dist[x] = p == -1 ? 1 : dist[p] + 1;
+    };
+
+    auto post = [&](int p, int x) {
+        if (p == -1) {
+            // Root vertex is an articulation point if it has
+            // more than one DFS child.
+            int deg = 0;
+            for (auto nbr : adj[x])
+                if (parent[nbr] == x)
+                    ++deg;
+            if (deg > 1) {
+                points.push_back(x);
+            }
+        } else {
+            // Non-root vertex x is an articulation point if some
+            // DFS child c exists with low[c] >= dist[x].
+            for (auto nbr : adj[x]) {
+                if (nbr != p)
+                    low[x] = min(low[x], dist[nbr]);
+                if (parent[nbr] == x) {
+                    low[x] = min(low[x], low[nbr]);
+                    if (low[nbr] >= dist[x]) {
+                        points.push_back(x);
+                    }
+                }
+            }
+        }
+    };
+
+    for (int i = 0; i < n; ++i)
+        if (!dist[i])
+            dfs(i, pre, post);
+
+    sort(points.begin(), points.end());
+    points.erase(unique(points.begin(), points.end()), points.end());
+    return points;
+}
+
 vector<pair<int,int>> graph::push_pop_order(int root) const {
     vector<pair<int,int>> order(n);
     int counter = 0;
@@ -185,6 +234,27 @@ int main() {
     assert(g.bipartite().first);
     g.edge(3, 5);
     assert(!g.bipartite().first);
+
+    g = graph(17);
+    g.edge(0, 1);
+    g.edge(1, 3);
+    g.edge(3, 2);
+    g.edge(2, 0);
+    g.edge(2, 4);
+    g.edge(4, 5);
+    g.edge(5, 6);
+    g.edge(6, 7);
+    g.edge(6, 12);
+    g.edge(6, 8);
+    g.edge(8, 9);
+    g.edge(9, 10);
+    g.edge(8, 10);
+    g.edge(10, 11);
+    g.edge(11, 12);
+    g.edge(12, 13);
+    g.edge(14, 15);
+    g.edge(14, 16);
+    assert(g.articulation_points() == vector<int>({2, 4, 5, 6, 12, 14}));
 
     // graph::push_pop_order tested on HackerRank, "The Story of a Tree."
 

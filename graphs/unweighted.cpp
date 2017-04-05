@@ -258,11 +258,12 @@ function<int(int,int)> graph::lca(int root) const {
         for (int k = log; k >= 0; --k)
             if (dp[k][a] != dp[k][b])
                 a = dp[k][a], b = dp[k][b];
-        return dp[0][a];
+        return a == b ? a : dp[0][a];
     };
 }
 
 int main() {
+    // Connected components and bipartite.
     graph g(7);
     g.edge(0, 1);
     assert(g.adj[0][0] == 1 && g.adj[1][0] == 0);
@@ -277,6 +278,7 @@ int main() {
     g.edge(3, 5);
     assert(!g.bipartite().first);
 
+    // Articulation points.
     g = graph(17);
     g.edge(0, 1);
     g.edge(1, 3);
@@ -298,6 +300,7 @@ int main() {
     g.edge(14, 16);
     assert(g.articulation_points() == vector<int>({2, 4, 5, 6, 12, 14}));
 
+    // Strongly-connected components.
     g = graph(8);
     g.arc(0, 1);
     g.arc(1, 4);
@@ -311,6 +314,25 @@ int main() {
     g.edge(2, 3);
     g.edge(3, 7);
     assert(g.scc() == vector<int>({0, 0, 2, 2, 0, 5, 5, 2}));
+
+    // Lowest common ancestor.
+    g = graph(8);
+    g.arc(0, 1);
+    g.arc(0, 2);
+    g.arc(1, 3);
+    g.arc(1, 4);
+    g.arc(1, 5);
+    g.arc(2, 6);
+    g.arc(2, 7);
+    auto lca = g.lca(0);
+    assert(lca(0, 1) == 0);
+    assert(lca(3, 4) == 1);
+    assert(lca(3, 5) == 1);
+    assert(lca(3, 6) == 0);
+    assert(lca(6, 7) == 2);
+    assert(lca(1, 4) == 1);
+    assert(lca(4, 1) == 1);
+    assert(lca(0, 7) == 0);
 
     // graph::push_pop_order tested on HackerRank, "The Story of a Tree."
 

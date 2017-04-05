@@ -11,3 +11,5 @@ TODO
 - MSD sort (esp. for strings)
 - RMQ (in constant time)
 - 2SAT
+- heavy-light decomposition
+- centroid decomposition

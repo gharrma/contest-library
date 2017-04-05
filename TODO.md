@@ -13,3 +13,5 @@ TODO
 - 2SAT
 - heavy-light decomposition
 - centroid decomposition
+- 2D segment tree
+- k-d tree

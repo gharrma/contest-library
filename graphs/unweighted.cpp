@@ -224,9 +224,9 @@ vector<int> graph::scc() const {
 
 vector<pair<int,int>> graph::push_pop_order(int root) const {
     vector<pair<int,int>> order(n);
-    int counter = 0;
-    auto pre  = [&](int p, int x) { order[x].first  = counter++; };
-    auto post = [&](int p, int x) { order[x].second = counter++; };
+    int i = 0;
+    auto pre  = [&](int p, int x) { order[x].first  = i++; };
+    auto post = [&](int p, int x) { order[x].second = i++; };
     dfs(root, pre, post);
     return order;
 }

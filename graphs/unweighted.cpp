@@ -2,9 +2,14 @@
  * A graph data structure and various algorithms.
  * All traversals are non-recursive.
  * n := number of nodes
+ * counter := auxiliary counter for traversal isolation
+ * visit := auxiliary array for tracking visited nodes
+ * next := auxiliary array for tracking next DFS child to visit
  * p := parent node
  * x := current node
+ * nbr := neighbor of the current node
  * cc := connected components
+ * scc := strongly connected components
  * lca := lowest common ancestor
  */
 #include <iostream>
@@ -16,11 +21,15 @@
 #include <cassert>
 using namespace std;
 
+void noop(int p, int x) {}
+
 struct graph {
     int n;
     vector<vector<int>> adj;
+    mutable int counter;
+    mutable vector<int> visit, next;
 
-    graph(int n): n(n), adj(n) {}
+    graph(int n): n(n), adj(n), counter(0), visit(n), next(n) {}
 
     void arc (int i, int j) { adj[i].emplace_back(j); }
     void edge(int i, int j) { arc(i, j), arc(j, i); }
@@ -28,13 +37,21 @@ struct graph {
     template <typename Pre, typename Post>
     void dfs(int s, Pre pre, Post post) const;
 
+    template <typename Pre, typename Post>
+    void dfs(Pre pre, Post post) const;
+
     template <typename F>
     void bfs(int s, F f) const;
+
+    template <typename F>
+    void bfs(F f) const;
 
     template <typename F>
     void euler_tour(int s, F f) const;
 
     int cc() const;
+
+    vector<int> scc() const;
 
     pair<bool, vector<bool>> bipartite() const;
 
@@ -49,47 +66,68 @@ struct graph {
 
 template <typename Pre, typename Post>
 void graph::dfs(int s, Pre pre, Post post) const {
-    unordered_map<int,bool> gray, black;
+    ++counter;
+    if (visit[s] == counter)
+        return;
     stack<pair<int,int>> q;
     q.emplace(-1, s);
+    pre(-1, s);
+    visit[s] = counter;
+    next[s] = 0;
     while (!q.empty()) {
         int p, x;
         tie(p, x) = q.top();
-        if (black[x]) {
-            q.pop();
-        } else if (gray[x]) {
-            black[x] = true;
+        if (next[x] == adj[x].size()) {
             q.pop();
             post(p, x);
-        } else {
-            gray[x] = true;
-            pre(p, x);
-            for (auto c : adj[x]) {
-                if (!gray[c]) {
-                    q.emplace(x, c);
-                }
+        } else while (next[x] < adj[x].size()) {
+            int nbr = adj[x][next[x]++];
+            if (visit[nbr] != counter) {
+                q.emplace(x, nbr);
+                pre(x, nbr);
+                visit[nbr] = counter;
+                next[nbr] = 0;
+                break;
+            }
+        }
+    }
+}
+
+template <typename Pre, typename Post>
+void graph::dfs(Pre pre, Post post) const {
+    for (int i = 0; i < n; ++i) {
+        if (i) --counter;
+        dfs(i, pre, post);
+    }
+}
+
+template <typename F>
+void graph::bfs(int s, F f) const {
+    ++counter;
+    if (visit[s] == counter)
+        return;
+    queue<pair<int,int>> q;
+    q.emplace(-1, s);
+    visit[s] = counter;
+    while (!q.empty()) {
+        int p, x;
+        tie(p, x) = q.front();
+        q.pop();
+        f(p, x);
+        for (auto nbr : adj[x]) {
+            if (visit[nbr] != counter) {
+                q.emplace(x, nbr);
+                visit[nbr] = counter;
             }
         }
     }
 }
 
 template <typename F>
-void graph::bfs(int s, F f) const {
-    unordered_map<int,bool> seen;
-    queue<pair<int,int>> q;
-    q.emplace(-1, s);
-    seen[s] = true;
-    while (!q.empty()) {
-        int p, x;
-        tie(p, x) = q.front();
-        q.pop();
-        f(p, x);
-        for (auto c : adj[x]) {
-            if (!seen[c]) {
-                seen[c] = true;
-                q.emplace(x, c);
-            }
-        }
+void graph::bfs(F f) const {
+    for (int i = 0; i < n; ++i) {
+        if (i) --counter;
+        bfs(i, f);
     }
 }
 
@@ -102,33 +140,25 @@ void graph::euler_tour(int s, F f) const {
 
 int graph::cc() const {
     int count = 0;
-    vector<bool> seen(n);
-    for (int i = 0; i < n; ++i)
-        if (!seen[i])
-            ++count, bfs(i, [&](int p, int x) { seen[x] = true; });
+    bfs([&](int p, int x) { if (p == -1) ++count; });
     return count;
 }
 
 graph graph::dfs_tree(int root) const {
     graph g(n);
-    auto noop = [](int p, int x) {};
     dfs(root, noop, [&](int p, int x) { if (p != -1) g.arc(p, x); });
     return g;
 }
 
 pair<bool, vector<bool>> graph::bipartite() const {
-    vector<bool> seen(n), color(n);
-    auto mark = [&](int p, int x) {
-        seen[x] = true;
+    vector<bool> color(n);
+    bfs([&](int p, int x) {
         color[x] = p == -1 ? false : !color[p];
-    };
-    for (int i = 0; i < n; ++i)
-        if (!seen[i])
-            bfs(i, mark);
+    });
     bool ok = true;
     for (int i = 0; i < n; ++i)
-        for (auto c : adj[i])
-            ok &= color[i] != color[c];
+        for (auto nbr : adj[i])
+            ok &= color[i] != color[nbr];
     return make_pair(ok, color);
 }
 
@@ -139,7 +169,7 @@ vector<int> graph::articulation_points() const {
 
     auto pre = [&](int p, int x) {
         parent[x] = p;
-        low[x] = dist[x] = p == -1 ? 1 : dist[p] + 1;
+        dist[x] = p == -1 ? 1 : dist[p] + 1;
     };
 
     auto post = [&](int p, int x) {
@@ -155,7 +185,8 @@ vector<int> graph::articulation_points() const {
             }
         } else {
             // Non-root vertex x is an articulation point if some
-            // DFS child c exists with low[c] >= dist[x].
+            // DFS child nbr exists with low[nbr] >= dist[x].
+            low[x] = dist[x];
             for (auto nbr : adj[x]) {
                 if (nbr != p)
                     low[x] = min(low[x], dist[nbr]);
@@ -169,13 +200,26 @@ vector<int> graph::articulation_points() const {
         }
     };
 
-    for (int i = 0; i < n; ++i)
-        if (!dist[i])
-            dfs(i, pre, post);
-
+    dfs(pre, post);
     sort(points.begin(), points.end());
     points.erase(unique(points.begin(), points.end()), points.end());
     return points;
+}
+
+vector<int> graph::scc() const {
+    vector<int> q(n);
+    int idx = n;
+    dfs(noop, [&](int p, int x) { q[--idx] = x; });
+    graph transpose(n);
+    for (int i = 0; i < n; ++i)
+        for (auto nbr : adj[i])
+            transpose.arc(nbr, i);
+    vector<int> res(n, -1);
+    for (int i = 0; i < n; ++i) {
+        if (i) --transpose.counter; // Keep marked nodes marked.
+        transpose.bfs(q[i], [&](int p, int x) { res[x] = q[i]; });
+    }
+    return res;
 }
 
 vector<pair<int,int>> graph::push_pop_order(int root) const {
@@ -194,9 +238,7 @@ function<int(int,int)> graph::lca(int root) const {
 
     // dp[k][i] := (2^k)th parent of node i, or -1 if none.
     vector<vector<int>> dp(log + 1, vector<int>(n, -1));
-    bfs(root, [&](int p, int x) {
-        dp[0][x] = p;
-    });
+    bfs(root, [&](int p, int x) { dp[0][x] = p; });
     for (int k = 1; k <= log; ++k)
         for (int i = 0; i < n; ++i)
             if (dp[k-1][i] != -1)
@@ -255,6 +297,20 @@ int main() {
     g.edge(14, 15);
     g.edge(14, 16);
     assert(g.articulation_points() == vector<int>({2, 4, 5, 6, 12, 14}));
+
+    g = graph(8);
+    g.arc(0, 1);
+    g.arc(1, 4);
+    g.arc(4, 0);
+    g.arc(1, 5);
+    g.arc(4, 5);
+    g.arc(1, 2);
+    g.arc(2, 6);
+    g.arc(7, 6);
+    g.edge(5, 6);
+    g.edge(2, 3);
+    g.edge(3, 7);
+    assert(g.scc() == vector<int>({0, 0, 2, 2, 0, 5, 5, 2}));
 
     // graph::push_pop_order tested on HackerRank, "The Story of a Tree."
 

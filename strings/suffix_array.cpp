@@ -33,11 +33,10 @@ struct suffix_array {
         for (int i = 0; i < n; ++i)
             order[i] = i;
 
-        auto it = begin(v);
         for (int pow = 0; pow <= log; ++pow) {
             auto cmp = [&](int i, int j) {
                 if (pow == 0)
-                    return it[i] < it[j];
+                    return v[i] < v[j];
                 if (dp[pow-1][i] != dp[pow-1][j])
                     return dp[pow-1][i] < dp[pow-1][j];
                 auto step = 1 << (pow-1);

@@ -26,6 +26,8 @@ increasing_subsequence(const Seq& seq, bool strict = true) {
         }
     }
     vector<typename Seq::value_type> res(best.size());
+    if (res.empty())
+        return res;
     int i = best.size();
     for (int k = best.back(); k != -1; k = pred[k])
         res[--i] = seq[k];
@@ -50,6 +52,12 @@ int main() {
 
     assert(increasing_subsequence(vector<int>({1,1,1,5,5,2,2,2}), false)
                                == vector<int>({1,1,1,2,2,2}));
+
+    assert(increasing_subsequence(vector<int>({42}))
+                               == vector<int>({42}));
+
+    assert(increasing_subsequence(vector<int>())
+                               == vector<int>());
 
     cout << "All tests passed" << endl;
 }

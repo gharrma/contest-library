@@ -15,3 +15,5 @@ TODO
 - centroid decomposition
 - 2D segment tree
 - k-d tree
+- segment tree with incremental elements (e.g., sets)
+- Topological sort

@@ -15,11 +15,10 @@ struct network_flow {
     // flow[i][j]   := flow from node i to node j in max flow
     // source_cc[i] := whether node i is on the source side of the min cut
     // total_flow   := flow out of the source node
-    // min_cut      := flow across the min cut
     const vector<vector<ll>>& cap;
     vector<vector<ll>> flow;
     vector<bool> source_cc;
-    ll total_flow, min_cut;
+    ll total_flow;
     size_t source, sink;
     size_t n_nodes;
 
@@ -29,7 +28,6 @@ struct network_flow {
         n_nodes = cap.size();
         flow = vector<vector<ll>>(n_nodes, vector<ll>(n_nodes, 0));
         total_flow = 0;
-        min_cut = 0;
         while (augment_or_finish());
     }
 
@@ -71,12 +69,7 @@ private:
 
         for (size_t i = 0; i < n_nodes; i++)
             total_flow += flow[source][i];
-
         source_cc = seen;
-        for (size_t i = 0; i < n_nodes; i++)
-            for (size_t j = 0; j < n_nodes; j++)
-                if (source_cc[i] && !source_cc[j])
-                    min_cut += flow[i][j];
 
         return false;
     }

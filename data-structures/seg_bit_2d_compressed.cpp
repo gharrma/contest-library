@@ -1,10 +1,9 @@
 /*
  * 2-dimensional segment tree supporting operations over
  *   rectangular regions.
- * Add values at specific coordinates, then call build().
- * The data structure is static once built.
+ * Add coordinates that will be updated, then call build().
  * Regardless of coordinate magnitudes, preprocessing is
- *   O(n lg n lg n) and queries are O(lg n lg n).
+ *   O(n lg n) and updates/queries are O(lg n lg n).
  *
  * s := size (number of leaves)
  * pts := vector of all points and associated values
@@ -42,30 +41,23 @@ struct bit {
 
 template <typename T>
 struct seg_tree_2d {
-    struct pt {
-        ll x, y; T val;
-        bool operator<(const pt& o) const {
-            return tie(x, y, val) < tie(o.x, o.y, o.val);
-        }
-    };
-
     int s;
-    vector<pt> pts;
+    vector<pair<ll,ll>> pts;
     vector<ll> xs;
     vector<vector<ll>> ys;
     vector<bit<T>> bt;
 
-    void add(ll x, ll y, T val) {
-        pts.push_back({x, y, val});
+    void add(ll x, ll y) {
+        pts.emplace_back(x, y);
     }
 
     void build() {
         // Compress first component.
         sort(pts.begin(), pts.end());
         for (auto& p : pts) {
-            if (xs.empty() || p.x != xs.back())
-                xs.push_back(p.x);
-            p.x = xs.size() - 1;
+            if (xs.empty() || p.first != xs.back())
+                xs.push_back(p.first);
+            p.first = xs.size() - 1;
         }
 
         for (s = 1; s < xs.size(); )
@@ -75,9 +67,9 @@ struct seg_tree_2d {
 
         // Build tree.
         for (const auto& p : pts) {
-            auto i = p.x + s;
-            if (ys[i].empty() || p.y != ys[i].back()) {
-                ys[i].push_back(p.y);
+            auto i = p.first + s;
+            if (ys[i].empty() || p.second != ys[i].back()) {
+                ys[i].push_back(p.second);
             }
         }
         for (int i = s; i < 2*s; ++i) {
@@ -89,10 +81,11 @@ struct seg_tree_2d {
                       back_inserter(ys[i]));
             bt[i] = bit<T>(ys[i].size());
         }
-        for (const auto& p : pts) {
-            for (int i = p.x + s; i > 0; i /= 2) {
-                bt[i].update(at_least(ys[i], p.y), p.val);
-            }
+    }
+
+    void update(ll x, ll y, T t) {
+        for (int i = at_least(xs, x) + s; i > 0; i /= 2) {
+            bt[i].update(at_least(ys[i], y), t);
         }
     }
 
@@ -124,16 +117,20 @@ struct seg_tree_2d {
 
 int main() {
     seg_tree_2d<int> s;
-    s.add(0, 1, 1);
-    s.add(0, 15, 1);
-    s.add(7, 7, 1);
-    s.add(7, 7, 1);
-    s.add(7, 7, 3);
-    s.add(12, 13, 1);
-    s.add(123456789, 987654321, 1);
-    s.add(123456789, 999999999, 2);
-    s.add(999999999, 123456789, 1);
+    s.add(0,1), s.add(0,15), s.add(7,7), s.add(12,13);
+    s.add(123456789,987654321);
+    s.add(123456789,999999999);
+    s.add(999999999,123456789);
     s.build();
+    s.update(0, 1, 1);
+    s.update(0, 15, 1);
+    s.update(7, 7, 1);
+    s.update(7, 7, 1);
+    s.update(7, 7, 3);
+    s.update(12, 13, 1);
+    s.update(123456789, 987654321, 1);
+    s.update(123456789, 999999999, 2);
+    s.update(999999999, 123456789, 1);
     assert(s.query(0,0,0) == 0);
     assert(s.query(0,0,1) == 1);
     assert(s.query(0,1,1) == 1);

@@ -11,14 +11,17 @@ using namespace std;
 
 template <typename T>
 struct bit_2d {
-    vector<vector<T>> v;
+    int n, m;
+    vector<vector<T>> v; // Use unordered_map<ll,unordered_map<ll,T>> if needed.
 
-    bit_2d(int x, int y): v(x+1, vector<T>(y+1)) {}
+    bit_2d(int n, int m): n(n+1), m(m+1), v(n+1, vector<T>(m+1)) {}
 
     void update(int x, int y, T t) {
-        for (int i = x + 1; i < v.size(); i += i & -i)
-            for (int j = y + 1; j < v[i].size(); j += j & -j)
+        for (int i = x + 1; i < n; i += i & -i) {
+            for (int j = y + 1; j < m; j += j & -j) {
                 v[i][j] += t;
+            }
+        }
     }
 
     T query(int x, int y) {

@@ -13,12 +13,13 @@ using namespace std;
 
 template <typename T>
 struct bit {
-    vector<T> v;
+    int n;
+    vector<T> v; // Use unordered_map<ll,T> if needed.
 
-    bit(int n): v(n+1) {}
+    bit(int n): n(n+1), v(n+1) {}
 
     void update(int i, T t) {
-        for (++i; i < v.size(); i += i & -i) {
+        for (++i; i < n; i += i & -i) {
             v[i] += t;
         }
     }
@@ -36,7 +37,7 @@ struct bit {
 
     int lower_bound(T x) {
         int i = 0, step = 1;
-        while (step < v.size())
+        while (step < n)
             step <<= 1;
         for (; step > 0; step >>= 1)
             if (i + step < v.size() && v[i + step] < x)

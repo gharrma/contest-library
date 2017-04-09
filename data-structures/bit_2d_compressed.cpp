@@ -33,20 +33,24 @@ struct bit_2d_compressed {
 
     void build() {
         // Compress first component.
+        sort(pts.begin(), pts.end(), [](const pt& a, const pt& b) {
+            return a.first < b.first;
+        });
         for (const auto& p : pts)
-            xs.push_back(p.first);
-        sort(xs.begin(), xs.end());
-        xs.erase(unique(xs.begin(), xs.end()), xs.end());
+            if (xs.empty() || p.first != xs.back())
+                xs.push_back(p.first);
         ys.resize(xs.size() + 1);
         v.resize(xs.size() + 1);
 
         // Compress second component.
+        sort(pts.begin(), pts.end(), [](const pt& a, const pt& b) {
+            return a.second < b.second;
+        });
         for (const auto& p : pts)
             for (auto i = idx(xs, p.first); i < v.size(); i += i & -i)
-                ys[i].push_back(p.second);
+                if (ys[i].empty() || p.second != ys[i].back())
+                    ys[i].push_back(p.second);
         for (int i = 1; i < v.size(); ++i) {
-            sort(ys[i].begin(), ys[i].end());
-            ys[i].erase(unique(ys[i].begin(), ys[i].end()), ys[i].end());
             v[i].resize(ys[i].size() + 1);
         }
     }

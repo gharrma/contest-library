@@ -14,7 +14,7 @@ using namespace std;
 template <typename T>
 struct bit {
     int n;
-    vector<T> v; // Use unordered_map<ll,T> if needed.
+    vector<T> v; // Use unordered_map<ll,T> if sparse.
 
     bit(int n): n(n+1), v(n+1) {}
 

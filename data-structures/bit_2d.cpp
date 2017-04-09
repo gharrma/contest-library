@@ -12,7 +12,7 @@ using namespace std;
 template <typename T>
 struct bit_2d {
     int n, m;
-    vector<vector<T>> v; // Use unordered_map<ll,unordered_map<ll,T>> if needed.
+    vector<vector<T>> v; // Use unordered_map<ll,unordered_map<ll,T>> if sparse.
 
     bit_2d(int n, int m): n(n+1), m(m+1), v(n+1, vector<T>(m+1)) {}
 

@@ -40,7 +40,7 @@ struct bit {
         while (step < n)
             step <<= 1;
         for (; step > 0; step >>= 1)
-            if (i + step < v.size() && v[i + step] < x)
+            if (i + step < n && v[i + step] < x)
                 i += step, x -= v[i];
         return i;
     }

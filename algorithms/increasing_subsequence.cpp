@@ -11,8 +11,7 @@ template <typename Seq>
 vector<typename Seq::value_type>
 increasing_subsequence(const Seq& seq, bool strict = true) {
     auto len = distance(begin(seq), end(seq));
-    vector<int> best;
-    vector<int> pred(len);
+    vector<int> best, pred(len);
     auto cmp = [&](int i, int j) { return seq[i] < seq[j]; };
     for (int i = 0; i < len; ++i) {
         auto find = strict
@@ -26,11 +25,9 @@ increasing_subsequence(const Seq& seq, bool strict = true) {
         }
     }
     vector<typename Seq::value_type> res(best.size());
-    if (res.empty())
-        return res;
-    int i = best.size();
-    for (int k = best.back(); k != -1; k = pred[k])
-        res[--i] = seq[k];
+    int curr = best.empty() ? -1 : best.back();
+    for (int i = best.size(); i > 0; curr = pred[curr])
+        res[--i] = seq[curr];
     return res;
 }
 

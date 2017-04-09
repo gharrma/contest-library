@@ -17,3 +17,5 @@ TODO
 - k-d tree
 - segment tree with incremental elements (e.g., sets)
 - Topological sort
+- DFA minimization
+- Partition refinement

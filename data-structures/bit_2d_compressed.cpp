@@ -2,7 +2,7 @@
  * 2-dimensional coordinate-compressed Fenwick tree.
  * Regardless of coordinate magnitudes, preprocessing is
  *   O(n lg n) and updates/queries are O(lg n lg n).
- * Faster than sparse Fenwick tree, but offline rather than online.
+ * Significantly faster than sparse Fenwick tree, but is offline.
  * Add all coordinates that will be updated, then call build().
  *
  * pts := vector of all coordinates that will be touched
@@ -111,6 +111,37 @@ int main() {
     assert(s.query(12345,0,999999998,987654321) == 1);
     assert(s.query(12345,0,999999998,1000000000) == 3);
     assert(s.query(0,0,1000000000,1000000000) == 12);
+
+    // Test speed.
+    s = bit_2d_compressed<int>();
+    vector<tuple<int,int,int>> q;
+    for (int t = 0; t < 50000; ++t) {
+        int x = rand();
+        int y = rand();
+        int val = rand() % 100;
+        q.emplace_back(x, y, val);
+        s.add(x, y);
+    }
+    for (int t = 0; t < 50000; ++t) {
+        q.emplace_back(123456, t, 1);
+        s.add(123456, t);
+    }
+    s.build();
+    for (auto& p : q) {
+        int x, y, val;
+        tie(x, y, val) = p;
+        s.update(x, y, val);
+        int x1 = rand();
+        int y1 = rand();
+        int x2 = rand();
+        int y2 = rand();
+        if (x2 < x1)
+            swap(x1, x2);
+        if (y2 < y1)
+            swap(y1, y2);
+        s.query(x1, y1, x2, y2);
+    }
+
     cout << "All tests passed" << endl;
     return 0;
 }

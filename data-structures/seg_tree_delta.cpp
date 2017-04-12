@@ -15,13 +15,9 @@ using namespace std;
 
 template <typename M>
 struct seg_tree_delta {
-    using State = typename M::State;
-    using Update = typename M::Update;
-    using Query = typename M::Query;
-    using Res = typename M::Res;
     M m;
     int s;
-    vector<State> v;
+    vector<typename M::State> v;
 
     seg_tree_delta(int n, M m = M()): m(m) {
         for (s = 1; s < n; )
@@ -29,15 +25,15 @@ struct seg_tree_delta {
         v.resize(2*s);
     }
 
-    void update(int i, Update u) {
+    void update(int i, typename M::Update u) {
         for (i += s; i > 0; i /= 2) {
             m.update(v[i], u);
         }
     }
 
-    Res query(int i, int j, Query q) {
+    typename M::Res query(int i, int j, typename M::Query q) {
         i += s, j += s;
-        Res l = m.id, r = m.id;
+        auto l = m.id, r = m.id;
         for (; i <= j; i /= 2, j /= 2) {
             if (i % 2 == 1) l = m.compose(l, m.query(v[i++], q));
             if (j % 2 == 0) r = m.compose(m.query(v[j--], q), r);

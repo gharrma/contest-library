@@ -49,40 +49,30 @@ vector<int> g[200200];
 multiset<int> dp[200200];
 int val[200200];
 
-void comp(int x) {
-    if (g[x].empty()) {
-        dp[x].insert(val[x]);
-        return;
-    }
-
-    int l = *max_element(all(g[x]), [](int a, int b) {
-        return dp[a].size() < dp[b].size();
-    });
-    dp[x] = move(dp[l]); // Merge into largest child dp.
-    for (auto n : g[x])
-        if (n != l)
-            for (auto v : dp[n])
-                dp[x].insert(v);
-
-    auto it = dp[x].lower_bound(val[x]);
-    if (it != dp[x].end())
-        dp[x].erase(it);
-    dp[x].insert(val[x]);
-}
-
 int main() {
     ios::sync_with_stdio(false);
     int n;
     cin >> n;
-    fu(i, n) {
-        int v, p;
-        cin >> v >> p;
-        val[i+1] = v;
+    fu(x, n) {
+        int p;
+        cin >> val[x] >> p;
         if (p) {
-            g[p].pb(i+1);
+            g[--p].pb(x);
         }
     }
-    fd(i, n) comp(i+1);
-    cout << dp[1].size() << endl;
+
+    fd(x, n) {
+        for (auto nbr : g[x]) {
+            if (dp[x].size() < dp[nbr].size())
+                swap(dp[x], dp[nbr]);
+            dp[x].insert(all(dp[nbr]));
+        }
+        auto it = dp[x].lower_bound(val[x]);
+        if (it != dp[x].end())
+            dp[x].erase(it);
+        dp[x].insert(val[x]);
+    }
+
+    cout << dp[0].size() << endl;
     return 0;
 }

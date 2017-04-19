@@ -1,5 +1,5 @@
 // NAIPC 2017, Problem D: Heaps from Trees.
-// https://naipc17.kattis.com/problems/naipc17.heapstrees
+// https://open.kattis.com/problems/heapstrees
 //
 // You are given a rooted tree with n nodes. The nodes are labeled 1..n
 // and node 1 is the root. Each node has a value v_i.

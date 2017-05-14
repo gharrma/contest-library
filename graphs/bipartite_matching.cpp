@@ -1,5 +1,6 @@
 /*
- * Bipartite matching, O(VE).
+ * Bipartite matching using Kuhn's algorithm.
+ * Runs in O(VE), but often faster.
  * Nodes on both sides are 0-indexed.
  * a := number of left nodes
  * b := number of right nodes
@@ -28,7 +29,7 @@ struct graph {
             return false;
         visit[n] = run;
         for (int c : adj[n]) {
-            // Can optimize by splitting into two loops.
+            // Can optimize by randomizing the order of neighbors visited.
             if (match[c] == -1 || augment(match[c], run)) {
                 match[n] = c, match[c] = n;
                 return true;
@@ -38,6 +39,8 @@ struct graph {
     }
 
     int matching() {
+        // Can optimize by greedily initializing with direct matches,
+        // and randomizing the order of nodes visited.
         int ret = 0;
         for (int i = 0; i < a; ++i)
             ret += augment(i, i);

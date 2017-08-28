@@ -29,7 +29,8 @@ struct graph {
             return false;
         visit[n] = run;
         for (int c : adj[n]) {
-            // Can optimize by randomizing the order of neighbors visited.
+            // Can optimize by splitting the conditions across two loops,
+            // and by randomizing the order of neighbors visited.
             if (match[c] == -1 || augment(match[c], run)) {
                 match[n] = c, match[c] = n;
                 return true;

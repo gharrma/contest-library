@@ -33,6 +33,13 @@
 // principle when processing r-paths to subtract off paths that we double-count
 // due to intersections.
 //
+// s := secret word
+// k := length of secret word
+// g := letters on the chess board
+// p := condensed representation of the current path
+// o := sorted set representation of the current path
+// c := the counts for each subset of nodes in an l-path
+//
 #include <iostream>
 #include <iomanip>
 #include <algorithm>

@@ -3,18 +3,15 @@
 #include <cassert>
 using namespace std;
 
-template <typename T>
-T gcd(T x, T y) { return y ? gcd(y, x % y) : abs(x); }
+int gcd(int x, int y) { return y ? gcd(y, x % y) : abs(x); }
 
-template <typename T>
-T lcm(T x, T y) { return x && y ? abs(x) / gcd(x, y) * abs(y) : 0; }
+int lcm(int x, int y) { return x && y ? abs(x) / gcd(x, y) * abs(y) : 0; }
 
 // Finds a and b such that a*x + b*y == gcd(x,y).
-template <typename T>
-pair<T,T> bezout(T x, T y) {
-    if (y == 0) return pair<T,T>(1, 0);
-    pair<T,T> u = bezout(y, x % y);
-    return pair<T,T>(u.second, u.first - (x/y) * u.second);
+pair<int,int> bezout(int x, int y) {
+    if (y == 0) return pair<int,int>(1, 0);
+    pair<int,int> u = bezout(y, x % y);
+    return pair<int,int>(u.second, u.first - (x/y) * u.second);
 }
 
 vector<bool> sieve(int n) {
@@ -40,10 +37,9 @@ vector<int> primes(int n) {
 }
 
 // Note: can precompute primes if needed.
-template <typename T>
-vector<pair<T,int>> prime_factors(T n) {
-    vector<pair<T,int>> factors;
-    for (T i = 2; i*i <= n; ++i) {
+vector<pair<int,int>> prime_factors(int n) {
+    vector<pair<int,int>> factors;
+    for (int i = 2; i*i <= n; ++i) {
         if (n % i == 0) {
             factors.emplace_back(i, 0);
             while (n % i == 0) {
@@ -57,10 +53,9 @@ vector<pair<T,int>> prime_factors(T n) {
     return factors;
 }
 
-template <typename T>
-vector<T> divisors(T n) {
-    vector<T> small, large;
-    for (T i = 1; i*i <= n; ++i) {
+vector<int> divisors(int n) {
+    vector<int> small, large;
+    for (int i = 1; i*i <= n; ++i) {
         if (n % i == 0) {
             small.emplace_back(i);
             if (i*i != n) {
@@ -85,5 +80,6 @@ int main() {
     vector<int> divs({1, 2, 3, 4, 6, 12});
     assert(divisors(12) == divs);
 
+    cout << "All tests passed" << endl;
     return 0;
 }

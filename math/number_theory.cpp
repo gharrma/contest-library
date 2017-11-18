@@ -41,11 +41,10 @@ vector<pair<int,int>> prime_factors(int n) {
     vector<pair<int,int>> factors;
     for (int i = 2; i*i <= n; ++i) {
         if (n % i == 0) {
-            factors.emplace_back(i, 0);
-            while (n % i == 0) {
-                ++factors.back().second;
-                n /= i;
-            }
+            int pow = 0;
+            while (n % i == 0)
+                ++pow, n /= i;
+            factors.emplace_back(i, pow);
         }
     }
     if (n > 1)

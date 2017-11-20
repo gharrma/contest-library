@@ -1,16 +1,5 @@
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
-
-#define TRACE(x) x
-#define WATCH(x) TRACE(cout << #x" = " << x << endl)
-#define WATCHR(b, e) TRACE( \
-    for (auto it = b; it != e; ++it) \
-        { if (it != b) cout << " "; cout << *it; } \
-    cout << endl)
-#define WATCHC(v) TRACE({cout << #v" = "; WATCHR(v.begin(), v.end());})
 
 using ll = long long;
 
@@ -19,8 +8,14 @@ using ll = long long;
 #define FD(i, a, b) for (int i = (int) (b) - 1; i >= (a); --i)
 #define fd(i, b) FD(i, 0, b)
 #define all(x) (x).begin(), (x).end()
-#define mp make_pair
-#define pb push_back
+
+#define TRACE(x) x
+#define WATCH(x) TRACE(cout << #x" = " << x << endl)
+#define WATCHR(b, e) TRACE( \
+    for (auto it = b; it != e; ++it) \
+        { if (it != b) cout << " "; cout << *it; } \
+    cout << endl)
+#define WATCHC(v) TRACE({cout << #v" = "; WATCHR(v.begin(), v.end());})
 
 int main() {
     ios::sync_with_stdio(false);

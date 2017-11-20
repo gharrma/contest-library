@@ -11,12 +11,6 @@
  * dp[k][i] := sorted position of substring i among (2^k)-length substrings.
  * order[i] := the start index of the ith lexicographically lowest suffix
  */
-#include <iostream>
-#include <vector>
-#include <tuple>
-#include <cassert>
-using namespace std;
-
 template <typename Sequence>
 struct suffix_array {
     const Sequence v;
@@ -77,45 +71,3 @@ struct suffix_array {
             && equal(begin(key), end(key), begin(v) + order[lb]);
     }
 };
-
-int main() {
-    suffix_array<string> example("apple");
-    assert(example.dp.back() == vector<int>({0,4,3,2,1}));
-    assert(example.order == vector<int>({0,4,3,2,1}));
-    assert(example.lower_bound("pla") == 3);
-    assert(example.has_substr("ppl"));
-    assert(!example.has_substr("b"));
-    assert(!example.has_substr("appe"));
-
-    int n = 1000, iter = 1000;
-    for (int t = 0; t < iter; ++t) {
-        string s(n, '\0');
-        for (int i = 0; i < n; ++i)
-            s[i] = rand() % 26 + 'a';
-
-        vector<string> suffixes(n);
-        for (int i = 0; i < n; ++i)
-            suffixes[i] = s.substr(i);
-        sort(suffixes.begin(), suffixes.end());
-        suffix_array<string> arr(s);
-        for (int i = 0; i < n; ++i)
-            assert(n - arr.order[i] == suffixes[i].size());
-
-        string r(n / 5, '\0');
-        for (int i = 0; i < n / 5; ++i)
-            r[i] = rand() % 26 + 'a';
-        auto lb = lower_bound(suffixes.begin(), suffixes.end(), r);
-        assert(arr.lower_bound(r) == distance(suffixes.begin(), lb));
-        assert(arr.has_substr(s.substr(rand() % n, rand() % n / 2)));
-
-        int i = rand() % n, j = rand() % n;
-        int len = 0;
-        while (i < n && j < n && s[i] == s[j])
-            ++len, ++i, ++j;
-        i -= len, j -= len;
-        assert(arr.lcp(i, j) == len);
-    }
-
-    cout << "All tests passed" << endl;
-    return 0;
-}

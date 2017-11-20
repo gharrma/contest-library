@@ -1,9 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <cassert>
-using namespace std;
-using ll = long long;
-
 template <typename T>
 struct matrix {
     int n;
@@ -57,13 +51,4 @@ ostream& operator<<(ostream& os, const matrix<T>& m) {
         cout << endl;
     }
     return os;
-}
-
-int main() {
-    matrix<int> a(2, {1, 2, 3, 4}), b(2, {4, 3, 2, 1}), id(2, 1);
-    assert(a + b == matrix<int>(2, 5, 5));
-    assert(id * a * b * id == matrix<int>(2, {8, 5, 20, 13}));
-    assert(a.pow(3) == matrix<int>(2, {37, 54, 81, 118}));
-    cout << "All tests passed" << endl;
-    return 0;
 }

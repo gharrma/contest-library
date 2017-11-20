@@ -12,15 +12,6 @@
  * scc := strongly connected components
  * lca := lowest common ancestor
  */
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <queue>
-#include <algorithm>
-#include <unordered_map>
-#include <cassert>
-using namespace std;
-
 void noop(int p, int x) {}
 
 struct graph {
@@ -260,87 +251,4 @@ function<int(int,int)> graph::lca(int root) const {
                 a = dp[k][a], b = dp[k][b];
         return a == b ? a : dp[0][a];
     };
-}
-
-int main() {
-    // Connected components and bipartite.
-    graph g(7);
-    g.edge(0,1);
-    assert(g.adj[0][0] == 1 && g.adj[1][0] == 0);
-    g.edge(0,3);
-    g.edge(1,2);
-    g.edge(2,3);
-    g.edge(4,5);
-    assert(g.cc() == 3);
-    assert(g.bipartite().first);
-    g.edge(3,4);
-    assert(g.bipartite().first);
-    g.edge(3,5);
-    assert(!g.bipartite().first);
-
-    // Articulation points.
-    g = graph(17);
-    g.edge(0,1);
-    g.edge(1,3);
-    g.edge(3,2);
-    g.edge(2,0);
-    g.edge(2,4);
-    g.edge(4,5);
-    g.edge(5,6);
-    g.edge(6,7);
-    g.edge(6,12);
-    g.edge(6,8);
-    g.edge(8,9);
-    g.edge(9,10);
-    g.edge(8,10);
-    g.edge(10,11);
-    g.edge(11,12);
-    g.edge(12,13);
-    g.edge(14,15);
-    g.edge(14,16);
-    assert(g.articulation_points() == vector<int>({2,4,5,6,12,14}));
-
-    // Strongly-connected components.
-    g = graph(8);
-    g.arc(0,1);
-    g.arc(1,4);
-    g.arc(4,0);
-    g.arc(1,5);
-    g.arc(4,5);
-    g.arc(1,2);
-    g.arc(2,6);
-    g.arc(7,6);
-    g.edge(5,6);
-    g.edge(2,3);
-    g.edge(3,7);
-    assert(g.scc() == vector<int>({0,0,2,2,0,5,5,2}));
-
-    // Lowest common ancestor.
-    g = graph(8);
-    g.arc(0,1);
-    g.arc(0,2);
-    g.arc(1,3);
-    g.arc(1,4);
-    g.arc(1,5);
-    g.arc(2,6);
-    g.arc(2,7);
-    auto lca = g.lca(0);
-    assert(lca(0,1) == 0);
-    assert(lca(3,4) == 1);
-    assert(lca(3,5) == 1);
-    assert(lca(3,6) == 0);
-    assert(lca(6,7) == 2);
-    assert(lca(1,4) == 1);
-    assert(lca(4,1) == 1);
-    assert(lca(0,7) == 0);
-
-    // Euler tour.
-    vector<int> tour;
-    g.euler_tour(0, [&](int x) { tour.push_back(x); });
-    assert(tour == vector<int>({0,1,3,1,4,1,5,1,0,2,6,2,7,2,0}));
-
-    // graph::push_pop_order tested on HackerRank, "The Story of a Tree."
-
-    cout << "All tests passed" << endl;
-    return 0;
 }

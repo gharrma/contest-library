@@ -25,6 +25,11 @@ time: $(TIME)
 	@time ./$< | tee $@
 	@echo
 
+.PHONY: final.ps
+final.ps: $(SRC)
+	enscript -T 4 -Ecpp -f Courier10 --color -p final.ps $^ && \
+	ps2pdf final.ps final.pdf
+
 clean:
 	@rm -rf $(BIN) $(TEST) $(TIME)
 	@echo "Removed generated files"

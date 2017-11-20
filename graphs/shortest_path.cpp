@@ -25,14 +25,6 @@
  * Mst:
  * - returns the weight of the minimum spanning tree
  */
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <tuple>
-#include <cassert>
-using namespace std;
-
 template <typename T>
 struct graph {
     int n;
@@ -195,58 +187,4 @@ T graph<T>::mst() const {
     }
 
     return ret;
-}
-
-int main() {
-    graph<int> g(4);
-    g.arc(0, 1, 2);
-    g.arc(1, 2, 1);
-    g.arc(0, 3, 1);
-    g.arc(3, 2, 3);
-    assert(g.dijkstra(0).first == vector<int>({0, 2, 3, 1}));
-    assert(g.mst() == 4);
-
-    g = graph<int>(3);
-    g.edge(0, 1, 3);
-    g.edge(1, 2, -2);
-    g.edge(2, 0, -2);
-    bool neg_cycle;
-    g.bellman_ford(0, &neg_cycle);
-    assert(neg_cycle);
-    g.johnsons_algorithm(&neg_cycle);
-    assert(neg_cycle);
-    assert(g.mst() == -4);
-
-    int n = 30;
-    g = graph<int>(n);
-    for (bool neg_allowed : {false, true}) {
-        for (int i = 0; i < 1000; ++i) {
-            if (rand() % 2) {
-                int weight = rand() % 1000 - (neg_allowed ? 100 : 0);
-                g.arc(rand() % n, rand() % n, weight);
-            } else {
-                int s = rand() % n;
-                auto bf = g.bellman_ford(s, &neg_cycle).first;
-                auto fw = g.floyd_warshall().first;
-                auto ja = g.johnsons_algorithm(&neg_cycle).first;
-                if (neg_allowed) {
-                    if (neg_cycle) {
-                        g = graph<int>(n);
-                        continue;
-                    }
-                    for (int i = 0; i < n; ++i)
-                        for (auto dist : {fw[s][i], ja[s][i]})
-                            assert(dist == bf[i]);
-                } else {
-                    auto dij = g.dijkstra(s).first;
-                    for (int i = 0; i < n; ++i)
-                        for (auto dist : {bf[i], fw[s][i], ja[s][i]})
-                            assert(dist == dij[i]);
-                }
-            }
-        }
-    }
-
-    cout << "All tests passed" << endl;
-    return 0;
 }

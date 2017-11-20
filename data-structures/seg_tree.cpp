@@ -1,19 +1,6 @@
 /*
  * Segment tree supporting an arbitrary monoid.
- *   (See https://en.wikipedia.org/wiki/Monoid)
- * Represented as a perfect binary tree, identity-initialized.
- * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i+1.
- * s := size (number of leaves)
- * v := underlying array
- * id := monoid identity
- * op := monoid operation (not necessarily commutative)
  */
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <cassert>
-using namespace std;
-
 template <typename Monoid>
 struct seg_tree {
     using T = typename Monoid::T;
@@ -27,8 +14,8 @@ struct seg_tree {
         v.resize(2*s, T(m.id));
     }
 
-    template <typename InputIt>
-    void set_leaves(InputIt begin, InputIt end) {
+    template <typename It>
+    void set_leaves(It begin, It end) {
         copy(begin, end, v.begin() + s);
         for (int i = s - 1; i >= 0; --i) {
             v[i] = m.op(v[2*i], v[2*i+1]);
@@ -59,24 +46,3 @@ struct monoid {
     static constexpr T id = numeric_limits<T>::min();
     static T op(T a, T b) { return max(a, b); }
 };
-
-int main() {
-    int n = 100;
-    vector<int> v(n, numeric_limits<int>::min());
-    seg_tree<monoid> s(n);
-    for (int t = 0; t < 1000000; ++t) {
-        if (rand() % 2) {
-            int i = rand() % n, val = rand() % 100;
-            v[i] = val;
-            s.update(i, val);
-        } else {
-            int l = rand() % n, r = rand() % n;
-            if (r < l)
-                swap(l, r);
-            int max_elem = *max_element(v.begin() + l, v.begin() + r + 1);
-            assert(s.query(l, r) == max_elem);
-        }
-    }
-    cout << "All tests passed" << endl;
-    return 0;
-}

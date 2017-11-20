@@ -1,8 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <cassert>
-using namespace std;
-
 int gcd(int x, int y) { return y ? gcd(y, x % y) : abs(x); }
 
 int lcm(int x, int y) { return x && y ? abs(x) / gcd(x, y) * abs(y) : 0; }
@@ -64,21 +59,4 @@ vector<int> divisors(int n) {
     }
     copy(large.rbegin(), large.rend(), back_inserter(small));
     return small;
-}
-
-int main() {
-    assert(gcd(12, 8) == 4);
-    assert(lcm(12, 8) == 24);
-    assert(bezout(11, 8) == make_pair(3, -4));
-
-    assert(primes(10) == vector<int>({2, 3, 5, 7}));
-
-    vector<pair<int,int>> pfactors({make_pair(2, 2), make_pair(3, 1)});
-    assert(prime_factors(12) == pfactors);
-
-    vector<int> divs({1, 2, 3, 4, 6, 12});
-    assert(divisors(12) == divs);
-
-    cout << "All tests passed" << endl;
-    return 0;
 }

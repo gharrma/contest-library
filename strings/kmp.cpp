@@ -4,11 +4,6 @@
  * needle to find, and m is the size of the haystack.
  * Assumes n > 0.
  */
-#include <iostream>
-#include <vector>
-#include <cassert>
-using namespace std;
-
 template <typename Container>
 struct kmp {
     const Container needle;
@@ -52,10 +47,3 @@ struct kmp {
         return !find(haystack).empty();
     }
 };
-
-int main() {
-    kmp<string> k("ababba");
-    assert(k.in("abaaababbaabaaba"));
-    assert(!k.in("abaaabbabbba"));
-    cout << "All tests passed" << endl;
-}

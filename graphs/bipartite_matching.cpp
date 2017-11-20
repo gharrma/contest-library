@@ -5,12 +5,6 @@
  * a := number of left nodes
  * b := number of right nodes
  */
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <cassert>
-using namespace std;
-
 struct graph {
     int a, b;
     vector<vector<int>> adj;
@@ -29,8 +23,6 @@ struct graph {
             return false;
         visit[n] = run;
         for (int c : adj[n]) {
-            // Can optimize by splitting the conditions across two loops,
-            // and by randomizing the order of neighbors visited.
             if (match[c] == -1 || augment(match[c], run)) {
                 match[n] = c, match[c] = n;
                 return true;
@@ -40,27 +32,9 @@ struct graph {
     }
 
     int matching() {
-        // Can optimize by greedily initializing with direct matches,
-        // and randomizing the order of nodes visited.
         int ret = 0;
         for (int i = 0; i < a; ++i)
             ret += augment(i, i);
         return ret;
     }
 };
-
-int main() {
-    graph g(4, 4);
-    g.edge(0, 0);
-    g.edge(0, 1);
-    g.edge(1, 0);
-    g.edge(1, 1);
-    g.edge(2, 0);
-    g.edge(2, 1);
-    g.edge(3, 1);
-    g.edge(3, 2);
-    g.edge(3, 3);
-    assert(g.matching() == 3);
-    cout << "All tests passed" << endl;
-    return 0;
-}

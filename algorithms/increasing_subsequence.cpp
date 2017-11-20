@@ -1,12 +1,6 @@
 /*
  * Returns a longest increasing subsequence in O(n lg n).
  */
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <cassert>
-using namespace std;
-
 template <typename Seq>
 vector<typename Seq::value_type>
 increasing_subsequence(const Seq& seq, bool strict = true) {
@@ -24,37 +18,10 @@ increasing_subsequence(const Seq& seq, bool strict = true) {
             *find = i;
         }
     }
+    // Can return best.size() here if just need length.
     vector<typename Seq::value_type> res(best.size());
     int curr = best.empty() ? -1 : best.back();
     for (int i = best.size(); i > 0; curr = pred[curr])
         res[--i] = seq[curr];
     return res;
-}
-
-int main() {
-    assert(increasing_subsequence(vector<int>({1,2,3,4,5,6,7,8,9}))
-                               == vector<int>({1,2,3,4,5,6,7,8,9}));
-
-    assert(increasing_subsequence(vector<int>({1,5,3,7,9,1,2}))
-                               == vector<int>({1,3,7,9}));
-
-    assert(increasing_subsequence(vector<int>({1,5,6,2,3,4}))
-                               == vector<int>({1,2,3,4}));
-
-    assert(increasing_subsequence(vector<int>({5,4,3,2,1}))
-                               == vector<int>({1}));
-
-    assert(increasing_subsequence(vector<int>({1,1,1,5,5,2,2,2}))
-                               == vector<int>({1,2}));
-
-    assert(increasing_subsequence(vector<int>({1,1,1,5,5,2,2,2}), false)
-                               == vector<int>({1,1,1,2,2,2}));
-
-    assert(increasing_subsequence(vector<int>({42}))
-                               == vector<int>({42}));
-
-    assert(increasing_subsequence(vector<int>())
-                               == vector<int>());
-
-    cout << "All tests passed" << endl;
 }

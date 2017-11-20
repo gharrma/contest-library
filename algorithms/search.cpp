@@ -11,11 +11,6 @@
  * m := mid
  * s := step size
  */
-#include <iostream>
-#include <vector>
-#include <cassert>
-#include <cmath>
-using namespace std;
 constexpr double eps = 1e-9;
 
 template <typename F>
@@ -57,34 +52,4 @@ double ternary_search(double l, double r, F f) {
         f(m1) > f(m2) ? r = m2 : l = m1;
     }
     return (l + r) / 2;
-}
-
-int main() {
-    int n = 10000;
-    vector<int> v(n);
-    for (int i = 0; i < n; ++i)
-        v[i] = rand();
-    sort(v.begin(), v.end());
-    for (int i = 0; i < 1000000; ++i) {
-        int k = rand();
-        auto cmp = [&](int x) { return v[x] >= k; };
-        int lr = binary_search_lr(v.size(), cmp);
-        int bit = binary_search_bit(v.size(), cmp);
-        int lb = distance(v.begin(), lower_bound(v.begin(), v.end(), k));
-        assert(lr == lb);
-        assert(bit == lb);
-    }
-
-    auto fmax = ternary_search(-1000., 1000., [](double x) {
-        return -x*x + x + 1;
-    });
-    assert(fabs(fmax - .5) < 1e-6);
-
-    auto dmax = ternary_search(-1000, 1000, [](int x) {
-        return -x*x + 2*x + 1;
-    });
-    assert(dmax == 1);
-
-    cout << "All tests passed" << endl;
-    return 0;
 }

@@ -1,35 +1,6 @@
 /*
  * Lazy segment tree supporting an arbitrary monoid.
- *   (See https://en.wikipedia.org/wiki/Monoid)
- * Range updates must be composable.
- *   (See https://en.wikipedia.org/wiki/Semigroup_action)
- * Represented as a perfect binary tree, identity-initialized.
- * Root is 1. Parent of node i is i/2. Children of node i are 2*i and 2*i+1.
- * Leaf nodes are never lazy.
- *
- * Optimized for two types of updates:
- * 1) Set all elements in a range to a constant value.
- * 2) Operate over a range of elements (e.g., add a constant value).
- *
- * s := size (number of leaves)
- * h := height
- * v := underlying array
- * lazy := unpropagated updates
- * id := monoid identity
- * op := monoid operation (not necessarily commutative)
- * d := distance from the leaves
- * u := an update
- * push := push laziness down along a path from the root to leaf node i
- * pull := repair consistency along a path from leaf node i to the root
  */
-#include <iostream>
-#include <algorithm>
-#include <numeric>
-#include <functional>
-#include <vector>
-#include <cassert>
-using namespace std;
-
 template <typename Monoid>
 struct seg_tree_lazy {
     using T = typename Monoid::T;
@@ -138,28 +109,3 @@ struct monoid::update {
         }
     }
 };
-
-int main() {
-    int n = 100;
-    vector<int> v(n);
-    seg_tree_lazy<monoid> s(n);
-    for (int t = 0; t < 1000000; ++t) {
-        if (rand() % 2) {
-            int l = rand() % n, r = rand() % n;
-            int val = rand() % 100;
-            auto kind = rand() % 2
-                ? monoid::update::kOperate
-                : monoid::update::kSet;
-            for (int i = l; i <= r; ++i)
-                v[i] = val + (kind == monoid::update::kOperate ? v[i] : 0);
-            s.update(l, r, monoid::update(kind, val));
-        } else {
-            int l = rand() % n, r = rand() % n;
-            if (r < l) swap(l, r);
-            int sum = accumulate(v.begin() + l, v.begin() + r + 1, 0);
-            assert(s.query(l, r) == sum);
-        }
-    }
-    cout << "All tests passed" << endl;
-    return 0;
-}

@@ -1,6 +1,3 @@
-#include <iostream>
-using namespace std;
-using ll = long long;
 constexpr ll mod = 1000000000 + 7;
 
 constexpr size_t max_fact = 1000000;
@@ -47,11 +44,4 @@ ll ncrx(ll n, ll r) {
         num = num * (n - i) % mod;
     }
     return num * inverse(denom) % mod;
-}
-
-int main() {
-    precomp_fact();
-    precomp_ncrf();
-    cout << "No test cases" << endl;
-    return 0;
 }

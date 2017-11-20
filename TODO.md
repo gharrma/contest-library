@@ -1,6 +1,8 @@
 TODO
 ----
 
+- Split into contest-stl and icpc-library?
+
 - extended Euclidean algorithm
 - geometry (convex hull, areas, intersecting line segments, etc.)
 - fast Fourier transform

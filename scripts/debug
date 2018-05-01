@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "Please provide a file to debug"
+    exit 1
+fi
+
+OUT=${1%.cpp}
+g++ ${OUT}.cpp --std=c++14 -g -o $OUT && lldb ./$OUT
+# Then, "process launch -i in.txt"

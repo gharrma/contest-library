@@ -6,4 +6,4 @@ if [ $# -lt 1 ]; then
 fi
 
 OUT=${1%.cpp}
-g++ ${OUT}.cpp --std=c++14 -O2 -o $OUT
+g++ ${OUT}.cpp --std=c++17 -O2 -o $OUT

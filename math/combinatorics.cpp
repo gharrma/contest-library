@@ -22,14 +22,14 @@ void precomp_ncrf() {
     }
 }
 
-ll pow(ll b, ll e) {
+ll mpow(ll b, ll e) {
     if (e == 0) return 1;
-    ll rec = pow(b * b % mod, e / 2);
+    ll rec = mpow(b * b % mod, e / 2);
     return e % 2 ? rec * b % mod : rec;
 }
 
 ll inverse(ll n) {
-    return pow(n, mod - 2);
+    return mpow(n, mod - 2);
 }
 
 // For n on the order of 1e6.

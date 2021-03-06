@@ -7,3 +7,4 @@ fi
 
 OUT=${1%.cpp}
 g++ ${OUT}.cpp --std=c++17 -O2 -o $OUT
+# Note: can increase stack size on Mac with -Wl,-stack_size -Wl,100000000

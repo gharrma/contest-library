@@ -18,9 +18,10 @@
 using namespace std;
 constexpr double eps = 1e-9;
 
+// Returns leftmost i in [0, n) such that f(i) == true. Else returns n.
 template <typename F>
 int binary_search_lr(int n, F f) {
-    int l = 0, r = n-1;
+    int l = 0, r = n;
     while (l < r) {
         int m = (l + r) / 2;
         f(m) ? r = m : l = m+1;
@@ -28,6 +29,7 @@ int binary_search_lr(int n, F f) {
     return l;
 }
 
+// Returns leftmost i in [0, n) such that f(i) == true. Else returns n.
 template <typename F>
 int binary_search_bit(int n, F f) {
     int l = -1, s = 1;

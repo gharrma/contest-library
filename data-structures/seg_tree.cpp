@@ -18,6 +18,8 @@ using namespace std;
 // corresponding leaf node along with its O(lg n) ancestors. To implement
 // accumulate(l, r) we iterate through the ancestors of leaves l and r to find
 // the O(lg n) segments which perfectly cover the range [l,r] without overlap.
+//
+// For a sparse version: use unordered_map, and return id for missing keys.
 
 template <typename T, typename AssociativeOp>
 struct seg_tree {

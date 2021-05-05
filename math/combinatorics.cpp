@@ -33,6 +33,7 @@ ll inverse(ll n) {
 }
 
 // For n on the order of 1e6.
+// Note: can precompute inverse fact[*] if needed to remove the lg factor.
 ll ncr(ll n, ll r) {
     return n < r ? 0 : fact[n] * inverse(fact[r] * fact[n - r] % mod) % mod;
 }

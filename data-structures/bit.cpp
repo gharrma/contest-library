@@ -16,7 +16,8 @@ struct bit {
     int n;
     vector<T> v; // Use unordered_map<ll,T> if sparse.
 
-    bit(int n): n(n+1), v(n+1) {}
+    // Valid range is [0,n] inclusive.
+    bit(int n): n(n+2), v(n+2) {}
 
     void update(int i, T t) {
         for (++i; i < n; i += i & -i) {
@@ -24,6 +25,7 @@ struct bit {
         }
     }
 
+    // Returns sum of [0,i] inclusive.
     T query(int i) {
         T sum = 0;
         for (++i; i > 0; i -= i & -i)
@@ -31,10 +33,12 @@ struct bit {
         return sum;
     }
 
+    // Returns sum of [l,r] inclusive.
     T query(int l, int r) {
         return l <= r ? query(r) - query(l-1) : 0;
     }
 
+    // Returns first index i such that query(i) >= x.
     int lower_bound(T x) {
         int i = 0, step = 1;
         while (step < n)

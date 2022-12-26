@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ $# -lt 2 ]; then
-    echo "Please provide a file to compile and a test case to run"
-    exit 1
-fi
-
-OUT=${1%.cpp}
-./compile $1 && ./$OUT < $2

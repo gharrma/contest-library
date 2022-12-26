@@ -1,10 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu
 
-if [ $# -lt 1 ]; then
-    echo "Please provide a file to compile"
+# Note: to use lldb, compile with -O0 -g, run `lldb ./$OUT`, and type "process launch -i in.txt".
+COPTS=(
+    --std=c++20
+    -O2
+    -Wall
+    -Wextra
+    # -Wl,-stack_size -Wl,100000000 # Large stack on Mac.
+    # -g -fno-omit-frame-pointer -O1 -fsanitize=address,undefined # Debugging.
+    # -fsanitize=memory # Unsupported on Apple Silicon.
+)
+
+# Collect extra compiler flags.
+while [[ $# -gt 0 && "$1" == -* ]]; do
+    COPTS+=("$1")
+    shift
+done
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 [copts...] <src>"
     exit 1
 fi
 
-OUT=${1%.cpp}
-g++ ${OUT}.cpp --std=c++17 -O2 -o $OUT
-# Note: can increase stack size on Mac with -Wl,-stack_size -Wl,100000000
+OUT="${1%.cpp}"
+g++ "${COPTS[@]}" -o "$OUT" "$OUT.cpp"

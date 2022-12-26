@@ -13,12 +13,12 @@ COPTS=(
 )
 
 # Collect extra compiler flags.
-while [[ $# -gt 0 && "$1" == -* ]]; do
+while [[ $# -gt 1 ]]; do
     COPTS+=("$1")
     shift
 done
 
-if [ $# -ne 1 ]; then
+if [[ $# -ne 1 || "$1" == -* ]]; then
     echo "Usage: $0 [copts...] <src>"
     exit 1
 fi

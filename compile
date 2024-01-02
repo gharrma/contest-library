@@ -8,7 +8,7 @@ COPTS=(
     -Wall
     -Wextra
     # -Wl,-stack_size -Wl,100000000 # Large stack on Mac.
-    # -g -fno-omit-frame-pointer -O1 -fsanitize=address,undefined # Debugging.
+    -g -fno-omit-frame-pointer -O1 -fsanitize=address,undefined # Debugging.
     # -fsanitize=memory # Unsupported on Apple Silicon.
 )
 
